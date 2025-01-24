@@ -16,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 设置窗口大小
     this->setFixedSize(800, 600);
-    vlayout = new QVBoxLayout(this);
 
     // 创建自定义标题栏
     createTitleBar();
@@ -47,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     startButton->setIconSize(QSize(60, 60));
     startButton->setStyleSheet("background-color: green;");
     connect(startButton, &QPushButton::clicked, this, &MainWindow::onStartButtonClicked);
+    connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
 }
 
 MainWindow::~MainWindow()
@@ -142,6 +142,18 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 }
 */
 
+void clearWidgetChildren(QWidget *widget) {
+    if (!widget) return;
+
+    // 查找所有子部件
+    QList<QWidget *> children = widget->findChildren<QWidget *>();
+
+    // 遍历并删除子部件
+    for (QWidget *child : children) {
+        child->setParent(nullptr); // 从父部件中移除
+        delete child;              // 删除部件
+    }
+}
 
 void MainWindow::initProgress()
 {
@@ -150,21 +162,26 @@ void MainWindow::initProgress()
     this->extracting = false;
     this->installing = false;
     
+    centralWidget = new QWidget(this);
+    centralWidget->setFixedSize(800, 100);
+    QVBoxLayout *vlayout = new QVBoxLayout(centralWidget);
+    vlayout->setSpacing(10);
+    centralWidget->setLayout(vlayout);
 
     // 创建进度条
     progressBar = new QProgressBar(this);
     progressBar->setRange(0, 100); // 设置进度范围
     progressBar->setValue(0);      // 初始值为 0
-    //progressBar->show();
-	
     vlayout->addWidget(progressBar);
+
 
     // 创建状态标签
     statusLabel = new QLabel("准备中...", this);
     statusLabel->setAlignment(Qt::AlignCenter);
     vlayout->addWidget(statusLabel);
 
-    //this->setLayout(vlayout);
+    centralWidget->move(0,this->height()/2 - centralWidget->height()/4);
+    centralWidget->show();
     // 创建定时器
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateProgress);
@@ -174,22 +191,21 @@ void MainWindow::initProgress()
 void MainWindow::updateProgress()
 {
     // 模拟安装进度
-    currentProgress += 10; // 每次增加 10%
+    currentProgress += 60; // 每次增加 10%
     if (currentProgress > 100) {
-	if (this->recyleNum == 0 ){
-		downloading = true;
-	}
-	if (this->recyleNum == 1 ){
-		extracting = true;
-	}
-	if (this->recyleNum == 2 ){
-		installing = true;
-	}else {
-		this->recyleNum++;
-		currentProgress = 0 ;
-	}
+       if (this->recyleNum == 1 ){
+               downloading = true;
+       }
+       if (this->recyleNum == 2 ){
+               extracting = true;
+       }
+       if (this->recyleNum == 3 ){
+               installing = true;
+       }else {
+               this->recyleNum++;
+               currentProgress = 0 ;
+       }
     }
-
     // 更新进度条
     progressBar->setValue(currentProgress);
 
@@ -200,10 +216,12 @@ void MainWindow::updateProgress()
     }else if (downloading && extracting && !installing) {
         statusLabel->setText("安装中... " + QString::number(currentProgress) + "%");
     } else {
-	timer->stop(); // 进度完成后停止定时器
-        statusLabel->setText("安装完成！");
-	this->close(); // 关闭窗口
-        this->deleteLater(); // 安全销毁窗口
-        //currentProgress = 0;
+       timer->stop(); // 进度完成后停止定时器
+       statusLabel->setText("安装完成！");
+       clearWidgetChildren(centralWidget);
+       //centralWidget->close();
+       qDebug()<<"finish";
+       emit imageSignal("/home/warlice/2.png"); // 图片路
     }
 }
+
