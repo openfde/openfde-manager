@@ -9,6 +9,7 @@
 #include <QWidget>
 #include <QPixmap>
 #include <QDebug>
+#include <QPainter>
 
 class MainWindow : public QMainWindow
 {
@@ -22,6 +23,26 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     //void moveEvent(QMoveEvent *event) override; // 重写 moveEvent 函数
+    void paintEvent(QPaintEvent *event) override {
+        Q_UNUSED(event);
+
+        QPainter painter(this);
+
+        // 设置抗锯齿
+        painter.setRenderHint(QPainter::Antialiasing);
+
+        // 设置圆的背景色为淡绿色
+        painter.setBrush(QColor(144, 238, 144)); // 淡绿色
+        painter.setPen(Qt::NoPen);
+
+        // 计算圆的位置（窗口中央）
+        int circleDiameter = 60;
+        int circleX = (width() - circleDiameter) / 2;
+        int circleY = (height() - circleDiameter) / 2;
+
+        // 绘制圆
+        painter.drawEllipse(circleX, circleY, circleDiameter, circleDiameter);
+    }
 
 private slots:
     void onStartButtonClicked();
@@ -32,22 +53,14 @@ private slots:
      // 显示图片的槽函数
     void showImage(const QString &imagePath) {
         // 加载图片
-qDebug()<< "show image";
         QPixmap pixmap(imagePath);
         if (pixmap.isNull()) {
             imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
         } else {
+	    centralWidget->resize(this->width(),this->height()-30);
+	    centralWidget->move(0,30);
             imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio)); // 缩放图片并显示
-		centralWidget->resize(800,600);
-		 // 创建一个垂直布局
-		QWidget * image = new QWidget(this);
-		image->setFixedSize(800,600);
-    QVBoxLayout *layout = new QVBoxLayout(image);
-
-    // 将 QLabel 添加到布局中
-    layout->addWidget(imageLabel);
-
-    image->show();
+	    imageLabel->show();
 
     //centralWidget->setLayout(nullptr);
     // 设置 QWidget 的布局
@@ -75,6 +88,7 @@ private:
     QPushButton *closeButton;    // 关闭按钮
     QPoint dragPosition; // 用于窗口拖动
     QWidget *centralWidget;
+    QVBoxLayout * centralLayout;
 
     QProgressBar *progressBar; // 进度条
     bool downloading,extracting,installing; // 不同进度标识

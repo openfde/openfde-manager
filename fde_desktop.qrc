@@ -3,5 +3,6 @@
         <file>images/settings.png</file>
         <file>images/minimize.png</file>
         <file>images/close.png</file>
+        <file>images/openfde.png</file>
     </qresource>
 </RCC>

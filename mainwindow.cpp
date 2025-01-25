@@ -20,15 +20,30 @@ MainWindow::MainWindow(QWidget *parent)
     // 创建自定义标题栏
     createTitleBar();
 
-    // 创建QLabel用于显示图片
+    centralWidget = new QWidget(this);
+    centralWidget->resize(this->width(), this->height()-30);
+    centralLayout = new QVBoxLayout(centralWidget);
+    centralLayout->setSpacing(10);
+    centralWidget->setLayout(centralLayout);
+    centralWidget->move(0,30);
+
     imageLabel = new QLabel(this);
-    QPixmap pixmap(":/images/background.jpg"); // 图片路径，需要将图片添加到资源文件中
+    QPixmap pixmap(":/images/openfde.png"); // 图片路径，需要将图片添加到资源文件中
     imageLabel->setPixmap(pixmap.scaled(this->size(), Qt::KeepAspectRatioByExpanding));
     imageLabel->setGeometry(0, 30, this->width(), this->height() - 30); // 留出标题栏的空间
+    imageLabel->lower();
 
+    // Add a new QWidget for the circular background
+QWidget *circularBackground = new QWidget(this);
+circularBackground->setStyleSheet("background-color: gray; border-radius: 60px;");
+//circularBackground->lower(); // Ensure it's below the button in z-order
+
+    // 创建QLabel用于显示图片
     // 创建三角形启动按钮
     startButton = new QPushButton(this);
+    //centralLayout->addWidget(startButton);
     startButton->setGeometry(350, 250, 100, 100); // 设置按钮位置和大小
+circularBackground->setGeometry(startButton->x() - 30, startButton->y() - 30, 120, 120); // Position and size the circle
 
     // 设置按钮形状为三角形
     QPolygon polygon;
@@ -41,10 +56,10 @@ MainWindow::MainWindow(QWidget *parent)
     startButton->setIconSize(QSize(60, 60)); // 设置图标大小
     //startButton->setStyleSheet("border: none; background-color: transparent;"); // 设置按钮样式
     startButton->setStyleSheet("background-color: green;");
+    startButton->raise();
+
 
     // 连接启动按钮点击事件
-    startButton->setIconSize(QSize(60, 60));
-    startButton->setStyleSheet("background-color: green;");
     connect(startButton, &QPushButton::clicked, this, &MainWindow::onStartButtonClicked);
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
 }
@@ -96,6 +111,7 @@ void MainWindow::createTitleBar()
 void MainWindow::onStartButtonClicked()
 {
     startButton->close();
+    imageLabel->hide();
     initProgress();
 }
 
@@ -130,17 +146,6 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-/*void MainWindow::moveEvent(QMoveEvent *event)
-{
-    QMainWindow::moveEvent(event);
-    // 如果 InstallWidget 存在，更新其位置
-    if (installWidget) {
-        installWidget->move(this->geometry().center() - installWidget->rect().center());
-	installWidget->raise(); // 将 InstallWidget 提升到最上层
-        installWidget->raise();
-    }
-}
-*/
 
 void clearWidgetChildren(QWidget *widget) {
     if (!widget) return;
@@ -162,26 +167,23 @@ void MainWindow::initProgress()
     this->extracting = false;
     this->installing = false;
     
-    centralWidget = new QWidget(this);
-    centralWidget->setFixedSize(800, 100);
-    QVBoxLayout *vlayout = new QVBoxLayout(centralWidget);
-    vlayout->setSpacing(10);
-    centralWidget->setLayout(vlayout);
+    centralWidget->resize(800,100);
+    centralWidget->move(0,30);
+    centralWidget->show();
+    //centralWidget->setStyleSheet("background-color: lightblue;");
+    centralWidget->move(0,this->height()/2 - centralWidget->height()/4);
 
     // 创建进度条
     progressBar = new QProgressBar(this);
     progressBar->setRange(0, 100); // 设置进度范围
     progressBar->setValue(0);      // 初始值为 0
-    vlayout->addWidget(progressBar);
-
+    centralLayout->addWidget(progressBar);
 
     // 创建状态标签
     statusLabel = new QLabel("准备中...", this);
     statusLabel->setAlignment(Qt::AlignCenter);
-    vlayout->addWidget(statusLabel);
+    centralLayout->addWidget(statusLabel);
 
-    centralWidget->move(0,this->height()/2 - centralWidget->height()/4);
-    centralWidget->show();
     // 创建定时器
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateProgress);
@@ -218,9 +220,11 @@ void MainWindow::updateProgress()
     } else {
        timer->stop(); // 进度完成后停止定时器
        statusLabel->setText("安装完成！");
-       clearWidgetChildren(centralWidget);
+       //clearWidgetChildren(centralWidget);
        //centralWidget->close();
        qDebug()<<"finish";
+       statusLabel->hide();
+       progressBar->hide();
        emit imageSignal("/home/warlice/2.png"); // 图片路
     }
 }

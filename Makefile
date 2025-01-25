@@ -349,6 +349,7 @@ compiler_rcc_clean:
 qrc_fde_desktop.cpp: fde_desktop.qrc \
 		/usr/lib/qt5/bin/rcc \
 		images/close.png \
+		images/openfde.png \
 		images/settings.png \
 		images/minimize.png
 	/usr/lib/qt5/bin/rcc -name fde_desktop fde_desktop.qrc -o qrc_fde_desktop.cpp
