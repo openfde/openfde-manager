@@ -1,4 +1,7 @@
 #include "mainwindow.h"
+#include "dbus.h"
+#include <unistd.h>
+#include <QRegularExpression>
 #include <QPixmap>
 #include <QPainter>
 #include <QPolygon>
@@ -6,7 +9,10 @@
 #include <QMessageBox>
 #include <QIcon>
 #include <QHBoxLayout>
-#include <QMouseEvent>
+#include <QCoreApplication>
+#include <QProcess>
+#include <QFile>
+#include <QTextStream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,8 +20,10 @@ MainWindow::MainWindow(QWidget *parent)
     // 移除默认的标题栏
     this->setWindowFlags(Qt::FramelessWindowHint);
 
+
     // 设置窗口大小
     this->setFixedSize(800, 600);
+
 
     // 创建自定义标题栏
     createTitleBar();
@@ -33,35 +41,33 @@ MainWindow::MainWindow(QWidget *parent)
     imageLabel->setGeometry(0, 30, this->width(), this->height() - 30); // 留出标题栏的空间
     imageLabel->lower();
 
-    // Add a new QWidget for the circular background
-QWidget *circularBackground = new QWidget(this);
-circularBackground->setStyleSheet("background-color: gray; border-radius: 60px;");
-//circularBackground->lower(); // Ensure it's below the button in z-order
-
-    // 创建QLabel用于显示图片
-    // 创建三角形启动按钮
-    startButton = new QPushButton(this);
-    //centralLayout->addWidget(startButton);
-    startButton->setGeometry(350, 250, 100, 100); // 设置按钮位置和大小
-circularBackground->setGeometry(startButton->x() - 30, startButton->y() - 30, 120, 120); // Position and size the circle
-
-    // 设置按钮形状为三角形
-    QPolygon polygon;
-    polygon <<  QPoint(80, 50) << QPoint(0, 0) << QPoint(0,100); // 顶点在右侧
-    QRegion region(polygon);
-    startButton->setMask(region);
-
-    // 设置按钮样式
-    startButton->setIcon(QIcon(":/images/start.png"));
-    startButton->setIconSize(QSize(60, 60)); // 设置图标大小
-    //startButton->setStyleSheet("border: none; background-color: transparent;"); // 设置按钮样式
-    startButton->setStyleSheet("background-color: green;");
-    startButton->raise();
-
+    btn = new CircleWidgetWithButton(this);
+    btn->show();
+    btn->move(300,200);
 
     // 连接启动按钮点击事件
-    connect(startButton, &QPushButton::clicked, this, &MainWindow::onStartButtonClicked);
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
+    connect(btn, &CircleWidgetWithButton::sendMessage, this, &MainWindow::onMessageReceived);
+}
+
+void MainWindow::onMessageReceived( const QString & string) {
+        qDebug() << "ReceiverClass: Received message:" << string;
+	const QString & start  = "start";
+	if (string  == start) {
+	    imageLabel->hide();
+	    btn->hide();
+	    QString filepath = "/usr/bin/get_fde.sh";
+	    QFile getfde(filepath);
+	    if (!getfde.exists()){
+		QUrl url("http://phyvirt.openfde.com/getopenfde/get-openfde.sh"); // 下载文件的 URL
+		QString savePath("/tmp/get-openfde.sh"); 
+		downloader = new FileDownloader();
+		downloader->downloadFile(url, savePath);
+		dbus_utils::construct();
+	    }
+	    initProgress();
+		qDebug()<<"real start";
+	}
 }
 
 MainWindow::~MainWindow()
@@ -108,12 +114,6 @@ void MainWindow::createTitleBar()
     connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseButtonClicked);
 }
 
-void MainWindow::onStartButtonClicked()
-{
-    startButton->close();
-    imageLabel->hide();
-    initProgress();
-}
 
 void MainWindow::onSettingsButtonClicked()
 {
@@ -130,42 +130,42 @@ void MainWindow::onCloseButtonClicked()
     this->close(); // 关闭窗口
 }
 
-void MainWindow::mousePressEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton) {
-        dragPosition = event->globalPos() - frameGeometry().topLeft();
-        event->accept();
-    }
-}
-
-void MainWindow::mouseMoveEvent(QMouseEvent *event)
-{
-    if (event->buttons() & Qt::LeftButton) {
-        move(event->globalPos() - dragPosition);
-        event->accept();
-    }
-}
-
-
-void clearWidgetChildren(QWidget *widget) {
-    if (!widget) return;
-
-    // 查找所有子部件
-    QList<QWidget *> children = widget->findChildren<QWidget *>();
-
-    // 遍历并删除子部件
-    for (QWidget *child : children) {
-        child->setParent(nullptr); // 从父部件中移除
-        delete child;              // 删除部件
-    }
-}
 
 void MainWindow::initProgress()
 {
+
+    // 创建进度条
+    progressBar = new QProgressBar(this);
+    progressBar->setRange(0, 100); // 设置进度范围
+    progressBar->setValue(0);      // 初始值为 0
+				   //
+    // 创建状态标签
+    statusLabel = new QLabel("准备中...", this);
+    statusLabel->setAlignment(Qt::AlignCenter);
+
+    QString output = dbus_utils::tools("status");
+    if ( output == "error") {
+        statusLabel->setText("Error: openFDE Service not started. ");
+    	centralLayout->addWidget(statusLabel);
+        return ;
+    }else  if ( output == "installed\n"){
+       btn->show();
+       emit imageSignal("/home/warlice/2.png"); // 图片路
+       return; 
+    }
+
+    installWorker = new Worker();
+    workThread = new QThread();
+    // 将 Worker 移动到子线程
+    installWorker->moveToThread(workThread);
+
+    // 连接 Worker 的信号和槽
+    QObject::connect(workThread, &QThread::started, installWorker, &Worker::doWork);
+    QObject::connect(installWorker, &Worker::workFinished, workThread, &QThread::quit);
+    workThread->start();
+
     // 创建布局
-    this->downloading = false;
-    this->extracting = false;
-    this->installing = false;
+    currentProgress = 0 ;
     
     centralWidget->resize(800,100);
     centralWidget->move(0,30);
@@ -173,16 +173,12 @@ void MainWindow::initProgress()
     //centralWidget->setStyleSheet("background-color: lightblue;");
     centralWidget->move(0,this->height()/2 - centralWidget->height()/4);
 
-    // 创建进度条
-    progressBar = new QProgressBar(this);
-    progressBar->setRange(0, 100); // 设置进度范围
-    progressBar->setValue(0);      // 初始值为 0
     centralLayout->addWidget(progressBar);
 
-    // 创建状态标签
-    statusLabel = new QLabel("准备中...", this);
-    statusLabel->setAlignment(Qt::AlignCenter);
     centralLayout->addWidget(statusLabel);
+    extracting=false;
+    installing=false;
+    downloading=false;
 
     // 创建定时器
     timer = new QTimer(this);
@@ -190,42 +186,51 @@ void MainWindow::initProgress()
     timer->start(1000); // 每秒更新一次进度
 }
 
+
+
 void MainWindow::updateProgress()
 {
-    // 模拟安装进度
-    currentProgress += 60; // 每次增加 10%
-    if (currentProgress > 100) {
-       if (this->recyleNum == 1 ){
-               downloading = true;
-       }
-       if (this->recyleNum == 2 ){
-               extracting = true;
-       }
-       if (this->recyleNum == 3 ){
-               installing = true;
-       }else {
-               this->recyleNum++;
-               currentProgress = 0 ;
-       }
+    QString output = dbus_utils::tools("status");
+    QRegularExpression regex("^(\\w+)\\s(\\d+)$");
+    QRegularExpressionMatch match = regex.match(output);
+    QString action; 
+    int number;
+    if (match.hasMatch()) {
+        action = match.captured(1); // 提取状态（如 "downloading" 或 "installing"）
+        number = match.captured(2).toInt(); // 提取数字（如 2）
+        qDebug() << "状态:" << action;
+        qDebug() << "数字:" << number;
+    } else {
+        qDebug() << "无法解析字符串:" << output;
+	    if (output == "installed\n") {
+		       timer->stop(); // 进度完成后停止定时器
+		       statusLabel->setText("安装完成！");
+		       statusLabel->hide();
+		       progressBar->hide();
+		       btn->show();
+		       emit imageSignal("/home/warlice/2.png"); // 图片路
+	 }
+	    return;
     }
+    QString status;
+   currentProgress = number;
+      if (action ==  "installing") {
+	      status = "安装中... ";
+		installing=true;
+      }else if (action == "extracting") {
+	      extracting=true;
+		status="解压中... " ;
+      }else if (action == "downloading"){
+	      downloading = true;
+		status="下载中... ";
+      }else{
+	     if (!installing && !extracting && !downloading){//fix the status reversed by an unexpected status 
+		      currentProgress = 0 ;
+		      status="下载中... ";
+	      }
+      }
+   statusLabel->setText(status + QString::number(currentProgress) + "%");
     // 更新进度条
     progressBar->setValue(currentProgress);
-
-    if (!downloading && !extracting && !installing) {
-        statusLabel->setText("下载中... " + QString::number(currentProgress) + "%");
-    }else if (downloading && !extracting && !installing) {
-        statusLabel->setText("解压中... " + QString::number(currentProgress) + "%");
-    }else if (downloading && extracting && !installing) {
-        statusLabel->setText("安装中... " + QString::number(currentProgress) + "%");
-    } else {
-       timer->stop(); // 进度完成后停止定时器
-       statusLabel->setText("安装完成！");
-       //clearWidgetChildren(centralWidget);
-       //centralWidget->close();
-       qDebug()<<"finish";
-       statusLabel->hide();
-       progressBar->hide();
-       emit imageSignal("/home/warlice/2.png"); // 图片路
-    }
 }
 

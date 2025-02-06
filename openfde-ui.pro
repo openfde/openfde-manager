@@ -3,9 +3,9 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = fde-desktop
+TARGET = openfde-ui
 INCLUDEPATH += .
-QT += widgets
+QT += widgets network dbus
 
 # The following define makes your compiler warn you if you use any
 # feature of Qt which has been marked as deprecated (the exact warnings
@@ -19,6 +19,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += mainwindow.h
-SOURCES += main.cpp mainwindow.cpp
-RESOURCES += fde_desktop.qrc
+HEADERS += mainwindow.h shapeButton.h download.h installworker.h
+SOURCES += main.cpp mainwindow.cpp shapeButton.cpp download.cpp
+RESOURCES += openfde-ui.qrc
