@@ -30,18 +30,8 @@ private slots:
     void updateProgress();
     void onMessageReceived(const QString &message); // 定义槽
      // 显示图片的槽函数
-    void showImage(const QString &imagePath) {
-        // 加载图片
-        QPixmap pixmap(imagePath);
-        if (pixmap.isNull()) {
-            imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
-        } else {
-	    centralWidget->resize(this->width(),this->height()-30);
-	    centralWidget->move(0,30);
-            imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio)); // 缩放图片并显示
-	    imageLabel->show();
-        }
-    }
+    void showImage(const QString &imagePath);
+    void onScriptFinished(const QByteArray &output, const QByteArray &error);
   
 signals:
    // 自定义信号
@@ -50,7 +40,6 @@ signals:
 private:
    
     void initProgress();
-QString executeScript(const QString &scriptPath, const QString &args);
     void createTitleBar(); // 创建自定义标题栏
 
     QLabel *imageLabel;

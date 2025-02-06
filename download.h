@@ -12,9 +12,8 @@ public:
     explicit FileDownloader(QObject *parent = nullptr) : QObject(parent) {
         manager = new QNetworkAccessManager(this);
     }
-
-    void downloadFile(const QUrl &url, const QString &savePath);
-
+    ~FileDownloader();
+    int downloadFile(const QUrl &url, const QString &savePath);
 private:
     QNetworkAccessManager *manager;
     QNetworkReply *reply;

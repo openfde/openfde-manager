@@ -51,24 +51,70 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::onMessageReceived( const QString & string) {
-        qDebug() << "ReceiverClass: Received message:" << string;
-	const QString & start  = "start";
-	if (string  == start) {
+    qDebug() << "ReceiverClass: Received message:" << string;
+    installWorker = new Worker();
+	if (string  == CircleWidgetWithButton::start) {
 	    imageLabel->hide();
 	    btn->hide();
 	    QString filepath = "/usr/bin/get_fde.sh";
 	    QFile getfde(filepath);
+        //check the exist of the primary script get_fde.sh
 	    if (!getfde.exists()){
-		QUrl url("http://phyvirt.openfde.com/getopenfde/get-openfde.sh"); // 下载文件的 URL
-		QString savePath("/tmp/get-openfde.sh"); 
-		downloader = new FileDownloader();
-		downloader->downloadFile(url, savePath);
-		dbus_utils::construct();
+            QUrl url("http://phyvirt.openfde.com/getopenfde/get-openfde.sh"); // 下载文件的 URL
+            QString savePath("/tmp/get-openfde.sh");
+            downloader = new FileDownloader();
+            int ret = downloader->downloadFile(url, savePath);
+            if ( ret != 0 ){ //download file failed
+                 // 创建状态标签
+                QLabel status = new QLabel("Error: network or disk error", this);
+                status->setAlignment(Qt::AlignCenter);
+                centralLayout->addWidget(status);
+                return ;
+            }
+            //construct /usr/bin/get_fde.sh
+		    QString retS = dbus_utils::construct();
+            if (retS == dbus_utils::errorS) {
+                  // 创建状态标签
+                QLabel status = new QLabel("Error: openFDE Service not started.", this);
+                status->setAlignment(Qt::AlignCenter);
+                centralLayout->addWidget(status);
+                return ;
+            }
 	    }
-	    initProgress();
-		qDebug()<<"real start";
+    
+        workThread = new QThread();
+        // 将 Worker 移动到子线程
+        installWorker->moveToThread(workThread);
+        initProgress();
+        // 连接 Worker 的信号和槽
+        // QObject::connect(workThread, &QThread::started, installWorker, &Worker::executeScript);
+        // QObject::connect(installWorker, &Worker::scriptFinished, workThread, &MainWindow::onScriptFinished);
 	}
 }
+
+void MainWindow::showImage(const QString &imagePath) {
+    // 加载图片
+    QPixmap pixmap(imagePath);
+    if (pixmap.isNull()) {
+        imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
+    } else {
+        centralWidget->resize(this->width(),this->height()-30);
+        centralWidget->move(0,30);
+        imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio)); // 缩放图片并显示
+        imageLabel->show();
+    }
+}
+
+// Add a new slot to handle the script completion
+void MainWindow::onScriptFinished(const QByteArray &output, const QByteArray &error) {
+    if (!error.isEmpty()) {
+        qDebug() << "on script finished 脚本执行错误：" << error;
+    } else {
+        qDebug() << "on script finished  脚本执行结果：" << output;
+    }
+}
+
+
 
 MainWindow::~MainWindow()
 {
@@ -133,7 +179,6 @@ void MainWindow::onCloseButtonClicked()
 
 void MainWindow::initProgress()
 {
-
     // 创建进度条
     progressBar = new QProgressBar(this);
     progressBar->setRange(0, 100); // 设置进度范围
@@ -143,7 +188,7 @@ void MainWindow::initProgress()
     statusLabel = new QLabel("准备中...", this);
     statusLabel->setAlignment(Qt::AlignCenter);
 
-    QString output = dbus_utils::tools("status");
+    QString output = dbus_utils::tools(dbus_utils::methodStatus);
     if ( output == "error") {
         statusLabel->setText("Error: openFDE Service not started. ");
     	centralLayout->addWidget(statusLabel);
@@ -151,13 +196,8 @@ void MainWindow::initProgress()
     }else  if ( output == "installed\n"){
        btn->show();
        emit imageSignal("/home/warlice/2.png"); // 图片路
-       return; 
+       return;
     }
-
-    installWorker = new Worker();
-    workThread = new QThread();
-    // 将 Worker 移动到子线程
-    installWorker->moveToThread(workThread);
 
     // 连接 Worker 的信号和槽
     QObject::connect(workThread, &QThread::started, installWorker, &Worker::doWork);
@@ -166,7 +206,7 @@ void MainWindow::initProgress()
 
     // 创建布局
     currentProgress = 0 ;
-    
+
     centralWidget->resize(800,100);
     centralWidget->move(0,30);
     centralWidget->show();
@@ -193,7 +233,7 @@ void MainWindow::updateProgress()
     QString output = dbus_utils::tools("status");
     QRegularExpression regex("^(\\w+)\\s(\\d+)$");
     QRegularExpressionMatch match = regex.match(output);
-    QString action; 
+    QString action;
     int number;
     if (match.hasMatch()) {
         action = match.captured(1); // 提取状态（如 "downloading" 或 "installing"）
@@ -224,7 +264,7 @@ void MainWindow::updateProgress()
 	      downloading = true;
 		status="下载中... ";
       }else{
-	     if (!installing && !extracting && !downloading){//fix the status reversed by an unexpected status 
+	     if (!installing && !extracting && !downloading){//fix the status reversed by an unexpected status
 		      currentProgress = 0 ;
 		      status="下载中... ";
 	      }
@@ -233,4 +273,5 @@ void MainWindow::updateProgress()
     // 更新进度条
     progressBar->setValue(currentProgress);
 }
+
 

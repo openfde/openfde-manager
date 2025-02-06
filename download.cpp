@@ -1,13 +1,13 @@
 #include "download.h"
 #include <QFile>
 
-void FileDownloader:: downloadFile(const QUrl &url, const QString &savePath) {
-        QNetworkRequest request(url);
-        reply = manager->get(request);
+int FileDownloader:: downloadFile(const QUrl &url, const QString &savePath) {
+    QNetworkRequest request(url);
+    reply = manager->get(request);
 
 	qDebug()<<"start to download download";
 	QEventLoop eventLoop;
-	    QTimer timer;
+	QTimer timer;
 
     // 设置定时器，超时后退出事件循环
     timer.setSingleShot(true); // 单次触发
@@ -17,7 +17,7 @@ void FileDownloader:: downloadFile(const QUrl &url, const QString &savePath) {
         //connect(reply, &QNetworkReply::readyRead, this, &FileDownloader::onReadyRead);
 	 // 连接信号和槽，当下载完成时退出事件循环
     QObject::connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
-      // 启动定时器
+    // 启动定时器 10s timeout
     timer.start(10000);
     // 进入事件循环，等待下载完成或超时
     eventLoop.exec();
@@ -27,7 +27,7 @@ void FileDownloader:: downloadFile(const QUrl &url, const QString &savePath) {
         qDebug() << "下载超时或网络故障";
         reply->abort(); // 中止下载
         reply->deleteLater();
-        return;
+        return 1; //超时返回1
     }
 
     // 停止定时器
@@ -41,20 +41,27 @@ void FileDownloader:: downloadFile(const QUrl &url, const QString &savePath) {
             file.write(reply->readAll());
             file.close();
             qDebug() << "文件下载成功:" << savePath;
-	    if (!QFile::exists(savePath)) {
-        qDebug() << "脚本文件不存在i1:" << savePath;
-        return;
-    }
-
+            if (!QFile::exists(savePath)) {
+                qDebug() << "脚本文件不存在i1:" << savePath;
+                return 2;
+            }
         } else {
             qDebug() << "无法打开文件进行写入:" << savePath;
+            return 2;
         }
     } else {
         qDebug() << "下载失败:" << reply->errorString();
+        return 3;
     }
 
     // 释放reply对象
     reply->deleteLater();
     qDebug("delete download reply");
+    return 0;
 }
 
+ FileDownloader::~FileDownloader(){
+    if  (manager ) {
+        delete manager;
+    }
+ }

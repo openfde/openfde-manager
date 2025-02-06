@@ -19,6 +19,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += mainwindow.h shapeButton.h download.h installworker.h
-SOURCES += main.cpp mainwindow.cpp shapeButton.cpp download.cpp
+HEADERS += mainwindow.h shapeButton.h download.h worker.h
+SOURCES += main.cpp mainwindow.cpp shapeButton.cpp download.cpp worker.cpp
 RESOURCES += openfde-ui.qrc

@@ -11,6 +11,8 @@ class CircleWidgetWithButton : public QWidget {
 	Q_OBJECT
 public:
     explicit CircleWidgetWithButton(QWidget *parent = nullptr) ;
+    const QString stop = "stop";
+    const QString start = "start";
 signals:
     void sendMessage(const QString &message); // 定义信号
 
