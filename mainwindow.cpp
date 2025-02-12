@@ -85,15 +85,13 @@ void MainWindow::onMessageReceived( const QString & string) {
         initProgress();
         startWorker = new StartWorker();
         startThread = new QThread();
-        runWorker->moveToThread(startThread);
+        startWorker->moveToThread(startThread);
         QObject::connect(startThread, &QThread::started, startWorker, &StartWorker::doStartWork);
-        QObject::connect(startWorker, &StartWorker::runEnded, startThread, &QThread::quit);
-        QObject::connect(startWorker, &StartWorker::runEnded, this, &MainWindow::onRunEnded);	}
+        QObject::connect(startWorker, &StartWorker::startEnded, startThread, &QThread::quit);
+        QObject::connect(startWorker, &StartWorker::startEnded, this, &MainWindow::onRunEnded);	}
 }
 
 void MainWindow::onRunEnded(){
-   //shapebutton切换为stop状态
-    btn->toggleButtonShape();
 }
 
 void MainWindow::showImage(const QString &imagePath) {
@@ -106,15 +104,6 @@ void MainWindow::showImage(const QString &imagePath) {
         centralWidget->move(0,30);
         imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio)); // 缩放图片并显示
         imageLabel->show();
-    }
-}
-
-// Add a new slot to handle the script completion
-void MainWindow::onScriptFinished(const QByteArray &output, const QByteArray &error) {
-    if (!error.isEmpty()) {
-        qDebug() << "on script finished 脚本执行错误：" << error;
-    } else {
-        qDebug() << "on script finished  脚本执行结果：" << output;
     }
 }
 
