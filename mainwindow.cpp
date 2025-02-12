@@ -88,8 +88,16 @@ void MainWindow::onMessageReceived( const QString & string) {
         startWorker->moveToThread(startThread);
         QObject::connect(startThread, &QThread::started, startWorker, &StartWorker::doStartWork);
         QObject::connect(startWorker, &StartWorker::startEnded, startThread, &QThread::quit);
-        QObject::connect(startWorker, &StartWorker::startEnded, this, &MainWindow::onRunEnded);	}
-	startThread->start();
+        QObject::connect(startWorker, &StartWorker::startEnded, this, &MainWindow::onRunEnded);	
+        startThread->start();
+    }else if (string == button_stop){
+        //执行脚本fde_utils stop 
+        QProcess *process = new QProcess();
+        process->start("/usr/bin/fde_utils", QStringList() << "stop");
+        process->waitForFinished(-1);
+        QString output(process->readAllStandardOutput());
+        qDebug() << "fde_utils output:" << output;
+    }
 }
 
 void MainWindow::onRunEnded(){

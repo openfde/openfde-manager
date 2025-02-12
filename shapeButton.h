@@ -5,6 +5,7 @@
 #include <QBitmap>
 #include <QVBoxLayout>
 #include <QMainWindow>
+#include "start_worker.h"
 
 static const QString button_stop = "stop";
 static const QString button_start = "start";
@@ -24,10 +25,10 @@ protected:
         painter.setRenderHint(QPainter::Antialiasing);
 
         // 绘制圆形背景
-	// painter.setBrush(QColor(200, 255, 200)); // 更清淡的绿色
+        // painter.setBrush(QColor(200, 255, 200)); // 更清淡的绿色
         //painter.setBrush(QColor(144, 238, 144)); // 淡绿色
-	//painter.setBrush(QColor(173, 216, 230)); // 淡蓝色
-	painter.setBrush(QColor(173,225,225,128)); // 淡蓝色,半透明
+        //painter.setBrush(QColor(173, 216, 230)); // 淡蓝色
+        painter.setBrush(QColor(173,225,225,128)); // 淡蓝色,半透明
         painter.setPen(Qt::NoPen);
         painter.drawEllipse(50, 50, 100, 100); // 绘制圆形
 	}
