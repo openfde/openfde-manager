@@ -89,6 +89,7 @@ void MainWindow::onMessageReceived( const QString & string) {
         QObject::connect(startThread, &QThread::started, startWorker, &StartWorker::doStartWork);
         QObject::connect(startWorker, &StartWorker::startEnded, startThread, &QThread::quit);
         QObject::connect(startWorker, &StartWorker::startEnded, this, &MainWindow::onRunEnded);	}
+	startThread->start();
 }
 
 void MainWindow::onRunEnded(){
