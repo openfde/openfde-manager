@@ -3,7 +3,8 @@
 
 #include "shapeButton.h"
 #include "download.h"
-#include "worker.h"
+#include "install_worker.h"
+#include "start_worker.h"
 #include <QMainWindow>
 #include <QPushButton>
 #include <QProgressBar>
@@ -31,7 +32,7 @@ private slots:
     void onMessageReceived(const QString &message); // 定义槽
      // 显示图片的槽函数
     void showImage(const QString &imagePath);
-    void onScriptFinished(const QByteArray &output, const QByteArray &error);
+    void onRunEnded();
   
 signals:
    // 自定义信号
@@ -44,6 +45,8 @@ private:
 
     QLabel *imageLabel;
     Worker *installWorker;
+    StartWorker *startWorker;
+    QThread *startThread;
     QThread *workThread;
     QPushButton *settingsButton;
     QPushButton *minimizeButton; // 最小化按钮

@@ -71,25 +71,29 @@ void MainWindow::onMessageReceived( const QString & string) {
                 centralLayout->addWidget(status);
                 return ;
             }
-            //construct /usr/bin/get_fde.sh
-		    QString retS = dbus_utils::construct();
+             //construct /usr/bin/get_fde.sh
+            QString retS = dbus_utils::construct();
             if (retS == dbus_errorS) {
-                  // 创建状态标签
+                    // 创建状态标签
                 QLabel *status = new QLabel("Error: openFDE Service not started.", this);
                 status->setAlignment(Qt::AlignCenter);
                 centralLayout->addWidget(status);
                 return ;
             }
 	    }
-    
-        workThread = new QThread();
-        // 将 Worker 移动到子线程
-        installWorker->moveToThread(workThread);
+       
         initProgress();
-        // 连接 Worker 的信号和槽
-        // QObject::connect(workThread, &QThread::started, installWorker, &Worker::executeScript);
-        // QObject::connect(installWorker, &Worker::scriptFinished, workThread, &MainWindow::onScriptFinished);
-	}
+        startWorker = new StartWorker();
+        startThread = new QThread();
+        runWorker->moveToThread(startThread);
+        QObject::connect(startThread, &QThread::started, startWorker, &StartWorker::doStartWork);
+        QObject::connect(startWorker, &StartWorker::runEnded, startThread, &QThread::quit);
+        QObject::connect(startWorker, &StartWorker::runEnded, this, &MainWindow::onRunEnded);	}
+}
+
+void MainWindow::onRunEnded(){
+   //shapebutton切换为stop状态
+    btn->toggleButtonShape();
 }
 
 void MainWindow::showImage(const QString &imagePath) {
@@ -179,6 +183,10 @@ void MainWindow::onCloseButtonClicked()
 
 void MainWindow::initProgress()
 {
+    workThread = new QThread();
+    // 将 Worker 移动到子线程
+    installWorker->moveToThread(workThread);
+
     // 创建进度条
     progressBar = new QProgressBar(this);
     progressBar->setRange(0, 100); // 设置进度范围

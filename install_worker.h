@@ -14,7 +14,6 @@ class Worker : public QObject {
 
 public:
     explicit Worker(QObject *parent = nullptr) : QObject(parent) {}
-   void  executeScript(const QString &scriptCommand, const QStringList &arguments);
 
 public slots:
     void doInstallWork() {
@@ -27,6 +26,4 @@ public slots:
 
 signals:
     void workFinished();             // 任务完成信号
-    void scriptFinished(QByteArray(), QByteArray);
-
 };
