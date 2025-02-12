@@ -20,7 +20,8 @@ void CircleWidgetWithButton::toggleButtonShape() {
     updateButtonShape(); // 更新按钮形状
 }
 
-
+const QString Button_stop = "stop";
+const QString Button_start = "start";
 
 void CircleWidgetWithButton::updateButtonShape() {
     // 更新按钮的遮罩
@@ -34,11 +35,11 @@ void CircleWidgetWithButton::updateButtonShape() {
         //triangle << QPointF(50, 10) << QPointF(10, 30) << QPointF(50, 50);
         triangle << QPointF(15, 50) << QPointF(15, 10) << QPointF(60,30);
         painter.drawPolygon(triangle);
-        sendMessage(stop);
+        sendMessage(Button_stop);
     } else {
         // 矩形遮罩
         painter.drawRect(10, 10, 40, 40);
-        sendMessage(start);
+        sendMessage(Button_start);
     }
     shapeButton->setMask(mask);
 //shapeButton->setStyleSheet("background-color: skyblue; border: none;");

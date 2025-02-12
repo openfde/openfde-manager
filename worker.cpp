@@ -3,7 +3,7 @@
 
 
 void Worker::executeScript(const QString &scriptCommand, const QStringList &arguments) {
-    process.start(scriptCommand, arguments);
+    QProcess.start(scriptCommand, arguments);
     if (process.waitForFinished(-1)) {
         QByteArray output = process.readAllStandardOutput();
         QByteArray error = process.readAllStandardError();

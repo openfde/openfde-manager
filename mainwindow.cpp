@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::onMessageReceived( const QString & string) {
     qDebug() << "ReceiverClass: Received message:" << string;
     installWorker = new Worker();
-	if (string  == CircleWidgetWithButton::start) {
+	if (string  == button_start) {
 	    imageLabel->hide();
 	    btn->hide();
 	    QString filepath = "/usr/bin/get_fde.sh";
@@ -66,16 +66,16 @@ void MainWindow::onMessageReceived( const QString & string) {
             int ret = downloader->downloadFile(url, savePath);
             if ( ret != 0 ){ //download file failed
                  // 创建状态标签
-                QLabel status = new QLabel("Error: network or disk error", this);
+                QLabel *status = new QLabel("Error: network or disk error", this);
                 status->setAlignment(Qt::AlignCenter);
                 centralLayout->addWidget(status);
                 return ;
             }
             //construct /usr/bin/get_fde.sh
 		    QString retS = dbus_utils::construct();
-            if (retS == dbus_utils::errorS) {
+            if (retS == dbus_errorS) {
                   // 创建状态标签
-                QLabel status = new QLabel("Error: openFDE Service not started.", this);
+                QLabel *status = new QLabel("Error: openFDE Service not started.", this);
                 status->setAlignment(Qt::AlignCenter);
                 centralLayout->addWidget(status);
                 return ;
@@ -188,7 +188,7 @@ void MainWindow::initProgress()
     statusLabel = new QLabel("准备中...", this);
     statusLabel->setAlignment(Qt::AlignCenter);
 
-    QString output = dbus_utils::tools(dbus_utils::methodStatus);
+    QString output = dbus_utils::tools(dbus_methodStatus);
     if ( output == "error") {
         statusLabel->setText("Error: openFDE Service not started. ");
     	centralLayout->addWidget(statusLabel);
@@ -200,7 +200,7 @@ void MainWindow::initProgress()
     }
 
     // 连接 Worker 的信号和槽
-    QObject::connect(workThread, &QThread::started, installWorker, &Worker::doWork);
+    QObject::connect(workThread, &QThread::started, installWorker, &Worker::doInstallWork);
     QObject::connect(installWorker, &Worker::workFinished, workThread, &QThread::quit);
     workThread->start();
 

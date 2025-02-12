@@ -3,7 +3,7 @@
 
 #include "shapeButton.h"
 #include "download.h"
-#include "installworker.h"
+#include "worker.h"
 #include <QMainWindow>
 #include <QPushButton>
 #include <QProgressBar>

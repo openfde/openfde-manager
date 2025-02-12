@@ -6,13 +6,14 @@
 #include <QVBoxLayout>
 #include <QMainWindow>
 
+static const QString button_stop = "stop";
+static const QString button_start = "start";
+
 // 自定义圆形背景和形状按钮的类
 class CircleWidgetWithButton : public QWidget {
 	Q_OBJECT
 public:
     explicit CircleWidgetWithButton(QWidget *parent = nullptr) ;
-    const QString stop = "stop";
-    const QString start = "start";
 signals:
     void sendMessage(const QString &message); // 定义信号
 

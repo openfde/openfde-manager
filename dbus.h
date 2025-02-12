@@ -8,14 +8,15 @@
 #include <QString>
 
 
+static const QString dbus_errorS = "error";
+static const QString dbus_methodStatus = "status";
+static const QString dbus_methodInstall = "install";
+static const QString dbus_openfdeStatusInstalled = "installed\n";
+
 
 class dbus_utils 
 {
 public:
-    const QString errorS = "error";
-    const QString methodStatus = "status";
-    const QString methodInstall = "install";
-    const QString openfdeStatusInstalled = "installed\n";
 	static QString construct(){
 	    // 创建一个方法调用消息
 	    QDBusMessage message = QDBusMessage::createMethodCall(
@@ -34,7 +35,7 @@ public:
 		    qDebug() << "construct 方法调用成功，返回值:" << reply.value();
 	    } else {
 		    qDebug() << "construct方法调用失败，错误信息:" << reply.error().message();
-		    return errorS;
+		    return dbus_errorS;
 	    }
 	    return reply.value();
 	}	
@@ -59,7 +60,7 @@ public:
         qDebug() << command <<" 方法调用成功，返回值:" << reply.value();
     } else {
         qDebug() << command <<" 方法调用失败，错误信息:" << reply.error().message();
-	    return errorS;
+	    return dbus_errorS;
     }
     return reply.value();
 	}	

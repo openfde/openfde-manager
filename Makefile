@@ -55,20 +55,22 @@ OBJECTS_DIR   = ./
 SOURCES       = main.cpp \
 		mainwindow.cpp \
 		shapeButton.cpp \
-		download.cpp qrc_openfde-ui.cpp \
+		download.cpp \
+		worker.cpp qrc_openfde-ui.cpp \
 		moc_mainwindow.cpp \
 		moc_shapeButton.cpp \
 		moc_download.cpp \
-		moc_installworker.cpp
+		moc_worker.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		shapeButton.o \
 		download.o \
+		worker.o \
 		qrc_openfde-ui.o \
 		moc_mainwindow.o \
 		moc_shapeButton.o \
 		moc_download.o \
-		moc_installworker.o
+		moc_worker.o
 DIST          = /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/aarch64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/aarch64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -150,10 +152,11 @@ DIST          = /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		openfde-ui.pro mainwindow.h \
 		shapeButton.h \
 		download.h \
-		installworker.h main.cpp \
+		worker.h main.cpp \
 		mainwindow.cpp \
 		shapeButton.cpp \
-		download.cpp
+		download.cpp \
+		worker.cpp
 QMAKE_TARGET  = openfde-ui
 DESTDIR       = 
 TARGET        = openfde-ui
@@ -342,8 +345,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents openfde-ui.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents mainwindow.h shapeButton.h download.h installworker.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp mainwindow.cpp shapeButton.cpp download.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents mainwindow.h shapeButton.h download.h worker.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp mainwindow.cpp shapeButton.cpp download.cpp worker.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -384,14 +387,12 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -W -dM -E -o moc_predefs.h /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_shapeButton.cpp moc_download.cpp moc_installworker.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_shapeButton.cpp moc_download.cpp moc_worker.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_shapeButton.cpp moc_download.cpp moc_installworker.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_shapeButton.cpp moc_download.cpp moc_worker.cpp
 moc_mainwindow.cpp: mainwindow.h \
 		shapeButton.h \
 		download.h \
-		installworker.h \
-		dbus.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/warlice/openFDE-ui/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/warlice/openFDE-ui -I/home/warlice/openFDE-ui -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtNetwork -I/usr/include/aarch64-linux-gnu/qt5/QtDBus -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/aarch64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/aarch64-linux-gnu/9/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
@@ -406,11 +407,11 @@ moc_download.cpp: download.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/warlice/openFDE-ui/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/warlice/openFDE-ui -I/home/warlice/openFDE-ui -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtNetwork -I/usr/include/aarch64-linux-gnu/qt5/QtDBus -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/aarch64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/aarch64-linux-gnu/9/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include download.h -o moc_download.cpp
 
-moc_installworker.cpp: installworker.h \
+moc_worker.cpp: worker.h \
 		dbus.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/warlice/openFDE-ui/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/warlice/openFDE-ui -I/home/warlice/openFDE-ui -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtNetwork -I/usr/include/aarch64-linux-gnu/qt5/QtDBus -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/aarch64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/aarch64-linux-gnu/9/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include installworker.h -o moc_installworker.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/warlice/openFDE-ui/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/warlice/openFDE-ui -I/home/warlice/openFDE-ui -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtNetwork -I/usr/include/aarch64-linux-gnu/qt5/QtDBus -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/aarch64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/aarch64-linux-gnu/9/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include worker.h -o moc_worker.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -430,15 +431,12 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 
 main.o: main.cpp mainwindow.h \
 		shapeButton.h \
-		download.h \
-		installworker.h \
-		dbus.h
+		download.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 mainwindow.o: mainwindow.cpp mainwindow.h \
 		shapeButton.h \
 		download.h \
-		installworker.h \
 		dbus.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o mainwindow.cpp
 
@@ -447,6 +445,10 @@ shapeButton.o: shapeButton.cpp shapeButton.h
 
 download.o: download.cpp download.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o download.o download.cpp
+
+worker.o: worker.cpp worker.h \
+		dbus.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o worker.o worker.cpp
 
 qrc_openfde-ui.o: qrc_openfde-ui.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_openfde-ui.o qrc_openfde-ui.cpp
@@ -460,8 +462,8 @@ moc_shapeButton.o: moc_shapeButton.cpp
 moc_download.o: moc_download.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_download.o moc_download.cpp
 
-moc_installworker.o: moc_installworker.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_installworker.o moc_installworker.cpp
+moc_worker.o: moc_worker.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_worker.o moc_worker.cpp
 
 ####### Install
 
