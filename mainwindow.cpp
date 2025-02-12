@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     btn->show();
     btn->move(300,200);
 
+
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
     connect(btn, &CircleWidgetWithButton::sendMessage, this, &MainWindow::onMessageReceived);
@@ -88,12 +89,12 @@ void MainWindow::onMessageReceived( const QString & string) {
         startWorker->moveToThread(startThread);
         QObject::connect(startThread, &QThread::started, startWorker, &StartWorker::doStartWork);
         QObject::connect(startWorker, &StartWorker::startEnded, startThread, &QThread::quit);
-        QObject::connect(startWorker, &StartWorker::startEnded, this, &MainWindow::onRunEnded);	
+        //QObject::connect(startWorker, &StartWorker::startEnded, btn, &CircleWidgetWithButton::toggleButtonShape);	
         startThread->start();
     }else if (string == button_stop){
         //执行脚本fde_utils stop 
         QProcess *process = new QProcess();
-        process->start("/usr/bin/fde_utils", QStringList() << "stop");
+        process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"stop");
         process->waitForFinished(-1);
         QString output(process->readAllStandardOutput());
         qDebug() << "fde_utils output:" << output;

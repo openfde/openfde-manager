@@ -32,7 +32,7 @@ protected:
         painter.setPen(Qt::NoPen);
         painter.drawEllipse(50, 50, 100, 100); // 绘制圆形
 	}
-private slots:
+public slots:
     void toggleButtonShape();
 
 private:
