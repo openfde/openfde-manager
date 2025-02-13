@@ -45,6 +45,18 @@ MainWindow::MainWindow(QWidget *parent)
     btn->show();
     btn->move(300,200);
 
+    QFile fdeUtils("/usr/bin/fde_utils");
+    if (fdeUtils.exists()){
+	    QProcess *process = new QProcess();
+	    process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
+	    process->waitForFinished(-1);
+	    //获取waitForFinished返回值
+	    int exitCode = process->exitCode();
+	    if (exitCode == 1) {
+		btn->toggleToStatus(button_start_status);
+	    }
+    }
+
 
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
@@ -55,8 +67,6 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
     qDebug() << "ReceiverClass: Received message:" << string;
     installWorker = new Worker();
 	if (string  == button_start_status) {
-	    imageLabel->hide();
-	    btn->hide();
 	    QString filepath = "/usr/bin/get_fde.sh";
 	    QFile getfde(filepath);
         //check the exist of the primary script get_fde.sh
@@ -89,9 +99,9 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
         startWorker->moveToThread(startThread);
         QObject::connect(startThread, &QThread::started, startWorker, &StartWorker::doStartWork);
         QObject::connect(startWorker, &StartWorker::startEnded, startThread, &QThread::quit);
-        QObject::connect(startWorker, &StartWorker::startEnded, this, &MainWindow::onRunEnded());	
+        QObject::connect(startWorker, &StartWorker::startEnded, this, &MainWindow::onRunEnded);	
         startThread->start();
-    }else if (string == button_stop){
+    }else if (string == button_stop_status){
         if ( withAction){
              //执行脚本fde_utils stop 
             QProcess *process = new QProcess();
@@ -109,30 +119,33 @@ void MainWindow::onRunEnded(){
 
 
 
-void MainWindow::showImage(const QString &imagePath) {
+void MainWindow::showImage(const QString &image1Path) {
     //执行脚本fde_utils stop 
     QProcess *process = new QProcess();
     process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
     process->waitForFinished(-1);
     //获取waitForFinished返回值
     int exitCode = process->exitCode();
+    QString imagePath = "/usr/share/backgrounds/openfde.png";
     if (exitCode == 1) {//0 means fde is stopped
     // 加载图片
+    	qDebug()<<"fde is started";
         QString retScreen = dbus_utils::utils("screenshot");
         if (retScreen == dbus_errorS) {
             imageLabel->setText("Error: openFDE Service not started. ");
             return ;
         }
         imagePath = "/tmp/openfde_screen.jpg";
-    }else{
-        imagePath = "/usr/share/background/openfde.png";
     }
+qDebug()<<"new pixmap"<<imagePath;
     QPixmap pixmap(imagePath);
     if (pixmap.isNull()) {
+qDebug()<<"failed to load "<<imagePath;
         imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
     } else {
         centralWidget->resize(this->width(),this->height()-30);
         centralWidget->move(0,30);
+        //imageLabel->setPixmap(pixmap.scaled(this->size(), Qt::KeepAspectRatioByExpanding));
         imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio)); // 缩放图片并显示
         imageLabel->show();
     }
@@ -187,7 +200,7 @@ void MainWindow::createTitleBar()
 
 void MainWindow::onSettingsButtonClicked()
 {
-    QMessageBox::information(this, "设置", "设置按钮被点击了！");
+ QMessageBox::information(this, "设置", "设置按钮被点击了！");
 }
 
 void MainWindow::onMinimizeButtonClicked()
@@ -215,6 +228,9 @@ void MainWindow::initProgress()
     // 创建状态标签
     statusLabel = new QLabel("准备中...", this);
     statusLabel->setAlignment(Qt::AlignCenter);
+
+    imageLabel->hide();
+    btn->hide();
 
     QString output = dbus_utils::tools(dbus_methodStatus);
     if ( output == "error") {

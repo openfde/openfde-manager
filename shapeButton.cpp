@@ -12,8 +12,6 @@ CircleWidgetWithButton::CircleWidgetWithButton(QWidget *parent):  QWidget(parent
 
     // 连接按钮的点击信号到槽函数
     connect(shapeButton, &QPushButton::clicked, this, &CircleWidgetWithButton::toggleButtonShape);
-    //将startworker的推出信号连接到toggleButtonShape
-    connect(startWorker, &StartWorker::startEnded, this, &CircleWidgetWithButton::toggleButtonShape);
 }
 
 void CircleWidgetWithButton::toggleToStatus(QString status){
@@ -45,11 +43,11 @@ void CircleWidgetWithButton::updateButtonShape(bool withAction) {
         //triangle << QPointF(50, 10) << QPointF(10, 30) << QPointF(50, 50);
         triangle << QPointF(15, 50) << QPointF(15, 10) << QPointF(60,30);
         painter.drawPolygon(triangle);
-        sendMessage(Button_stop_status,withAction);
+        sendMessage(button_stop_status,withAction);
     } else {
         // 矩形遮罩
         painter.drawRect(10, 10, 40, 40);
-        sendMessage(Button_stop_status,withAction);
+        sendMessage(button_start_status,withAction);
        
     }
     shapeButton->setMask(mask);

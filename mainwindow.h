@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QEvent>
 #include "shapeButton.h"
 #include "download.h"
 #include "install_worker.h"
@@ -20,6 +21,15 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override {
+    qDebug() << "Window is activated before";
+        if (event->type() == QEvent::WindowActivate) {
+            qDebug() << "Window is activated";
+            // 在这里可以添加类似恢复操作的代码
+        }
+        return QObject::eventFilter(obj, event);
+    }
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -29,11 +39,11 @@ private slots:
     void onMinimizeButtonClicked();
     void onCloseButtonClicked();
     void updateProgress();
-    void onMessageReceived(const QString &message); // 定义槽
+    void onMessageReceived(const QString &message, bool withAction); // 定义槽
      // 显示图片的槽函数
-    void showImage(const QString &imagePath);
     void onRunEnded();
-  
+public slots:
+    void showImage(const QString &imagePath);
 signals:
    // 自定义信号
     void imageSignal(const QString &imagePath);
@@ -61,7 +71,29 @@ private:
     QTimer *timer;             // 定时器
     int currentProgress;       // 当前进度
     bool extracting , installing, downloading;
-   QProcess *cmdProcess;
+    QProcess *cmdProcess;
+};
+
+
+
+// 自定义事件过滤器类
+class WindowActivateFilter : public QObject {
+public:
+    WindowActivateFilter(QObject* parent = nullptr) : QObject(parent) {}
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override {
+        if (event->type() == QEvent::WindowActivate) {
+            qDebug() << "Window is activated";
+	    MainWindow* myWidget = qobject_cast<MainWindow*>(obj);
+            if (myWidget) {
+                // 调用 MyWidget 的自定义方法
+                myWidget->showImage("");
+            }
+            // 在这里可以添加类似恢复操作的代码
+        }
+        return QObject::eventFilter(obj, event);
+    }
 };
 
 #endif // MAINWINDOW_H
