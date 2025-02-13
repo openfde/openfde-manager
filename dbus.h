@@ -39,30 +39,53 @@ public:
 	    }
 	    return reply.value();
 	}	
+    static QString utils(QString command ){
+        QDBusMessage message = QDBusMessage::createMethodCall(
+            "org.example.MyService",          // 服务名
+            "/org/example/MyService",         // 对象路径
+            "org.example.MyService",          // 接口名
+            "Utils"                           // 方法名
+        );
+        QList<QVariant> args;
+        args << QVariant::fromValue(QString(command));
+        message.setArguments(args);
+
+        int timeout=360000;
+        QDBusConnection bus = QDBusConnection::systemBus();  
+        QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
+
+        if (reply.isValid()) {
+            qDebug() << command <<" 方法调用成功，返回值:" << reply.value();
+        } else {
+            qDebug() << command <<" 方法调用失败，错误信息:" << reply.error().message();
+            return dbus_errorS;
+        }
+        return reply.value();
+	}	
 		
 	static QString tools(QString command ){
-    QDBusMessage message = QDBusMessage::createMethodCall(
-        "org.example.MyService",          // 服务名
-        "/org/example/MyService",         // 对象路径
-        "org.example.MyService",          // 接口名
-        "Tools"                           // 方法名
-    );
+        QDBusMessage message = QDBusMessage::createMethodCall(
+            "org.example.MyService",          // 服务名
+            "/org/example/MyService",         // 对象路径
+            "org.example.MyService",          // 接口名
+            "Tools"                           // 方法名
+        );
 
-    QList<QVariant> args;
-    args << QVariant::fromValue(QString(command));
-    message.setArguments(args);
+        QList<QVariant> args;
+        args << QVariant::fromValue(QString(command));
+        message.setArguments(args);
 
-    int timeout=360000;
-    QDBusConnection bus = QDBusConnection::systemBus();  
-    QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
+        int timeout=360000;
+        QDBusConnection bus = QDBusConnection::systemBus();  
+        QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
 
-    if (reply.isValid()) {
-        qDebug() << command <<" 方法调用成功，返回值:" << reply.value();
-    } else {
-        qDebug() << command <<" 方法调用失败，错误信息:" << reply.error().message();
-	    return dbus_errorS;
-    }
-    return reply.value();
+        if (reply.isValid()) {
+            qDebug() << command <<" 方法调用成功，返回值:" << reply.value();
+        } else {
+            qDebug() << command <<" 方法调用失败，错误信息:" << reply.error().message();
+            return dbus_errorS;
+        }
+        return reply.value();
 	}	
 };
 #endif

@@ -7,14 +7,15 @@
 #include <QMainWindow>
 #include "start_worker.h"
 
-static const QString button_stop = "stop";
-static const QString button_start = "start";
+static const QString button_stop_status = "stop";
+static const QString button_start_status = "start";
 
 // 自定义圆形背景和形状按钮的类
 class CircleWidgetWithButton : public QWidget {
 	Q_OBJECT
 public:
     explicit CircleWidgetWithButton(QWidget *parent = nullptr) ;
+    void toggleToStatus(QString status);
 signals:
     void sendMessage(const QString &message); // 定义信号
 
@@ -32,12 +33,13 @@ protected:
         painter.setPen(Qt::NoPen);
         painter.drawEllipse(50, 50, 100, 100); // 绘制圆形
 	}
-public slots:
+private slots:
     void toggleButtonShape();
+   
 
 private:
     QPushButton *shapeButton; // 形状切换按钮
     bool isTriangle; // 当前形状是否为三角形
-    void updateButtonShape();
+    void updateButtonShape(bool sendorNot = true);
 };
 

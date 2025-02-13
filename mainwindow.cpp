@@ -51,10 +51,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(btn, &CircleWidgetWithButton::sendMessage, this, &MainWindow::onMessageReceived);
 }
 
-void MainWindow::onMessageReceived( const QString & string) {
+void MainWindow::onMessageReceived( const QString & string , bool withoutAction) {
     qDebug() << "ReceiverClass: Received message:" << string;
     installWorker = new Worker();
-	if (string  == button_start) {
+	if (string  == button_start_status) {
 	    imageLabel->hide();
 	    btn->hide();
 	    QString filepath = "/usr/bin/get_fde.sh";
@@ -89,7 +89,7 @@ void MainWindow::onMessageReceived( const QString & string) {
         startWorker->moveToThread(startThread);
         QObject::connect(startThread, &QThread::started, startWorker, &StartWorker::doStartWork);
         QObject::connect(startWorker, &StartWorker::startEnded, startThread, &QThread::quit);
-        //QObject::connect(startWorker, &StartWorker::startEnded, btn, &CircleWidgetWithButton::toggleButtonShape);	
+        QObject::connect(startWorker, &StartWorker::startEnded, this, &MainWindow::onRunEnded());	
         startThread->start();
     }else if (string == button_stop){
         //执行脚本fde_utils stop 
@@ -102,10 +102,30 @@ void MainWindow::onMessageReceived( const QString & string) {
 }
 
 void MainWindow::onRunEnded(){
+    btn->toggleToStatus(button_stop_status);
 }
 
+
+
 void MainWindow::showImage(const QString &imagePath) {
+    //执行脚本fde_utils stop 
+    QProcess *process = new QProcess();
+    process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
+    process->waitForFinished(-1);
+    //获取waitForFinished返回值
+    int exitCode = process->exitCode();
+    QSTring imagePath ;
+    if (exitCode == 1) {//0 means fde is stopped
     // 加载图片
+        QString retScreen = dbus_utils::utils("screenshot");
+        if (retScreen == dbus_errorS) {
+            imageLabel->setText("Error: openFDE Service not started. ");
+            return ;
+        }
+        imagePath = "/tmp/openfde_screen.jpg";
+    }else{
+        imagePath = "/usr/share/background/openfde.png";
+    }
     QPixmap pixmap(imagePath);
     if (pixmap.isNull()) {
         imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
@@ -256,27 +276,27 @@ void MainWindow::updateProgress()
 		       progressBar->hide();
 		       btn->show();
 		       emit imageSignal("/home/warlice/2.png"); // 图片路
-	 }
+	    }
 	    return;
     }
     QString status;
-   currentProgress = number;
-      if (action ==  "installing") {
-	      status = "安装中... ";
-		installing=true;
-      }else if (action == "extracting") {
-	      extracting=true;
-		status="解压中... " ;
-      }else if (action == "downloading"){
-	      downloading = true;
-		status="下载中... ";
-      }else{
-	     if (!installing && !extracting && !downloading){//fix the status reversed by an unexpected status
-		      currentProgress = 0 ;
-		      status="下载中... ";
-	      }
-      }
-   statusLabel->setText(status + QString::number(currentProgress) + "%");
+    currentProgress = number;
+    if (action ==  "installing") {
+        status = "安装中... ";
+    installing=true;
+    }else if (action == "extracting") {
+        extracting=true;
+    status="解压中... " ;
+    }else if (action == "downloading"){
+        downloading = true;
+    status="下载中... ";
+    }else{
+        if (!installing && !extracting && !downloading){//fix the status reversed by an unexpected status
+            currentProgress = 0 ;
+            status="下载中... ";
+        }
+    }
+    statusLabel->setText(status + QString::number(currentProgress) + "%");
     // 更新进度条
     progressBar->setValue(currentProgress);
 }

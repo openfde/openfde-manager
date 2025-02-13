@@ -12,8 +12,18 @@ CircleWidgetWithButton::CircleWidgetWithButton(QWidget *parent):  QWidget(parent
 
     // 连接按钮的点击信号到槽函数
     connect(shapeButton, &QPushButton::clicked, this, &CircleWidgetWithButton::toggleButtonShape);
+    //将startworker的推出信号连接到toggleButtonShape
+    connect(startWorker, &StartWorker::startEnded, this, &CircleWidgetWithButton::toggleButtonShape);
 }
 
+void CircleWidgetWithButton::toggleToStatus(QString status){
+    if (status == button_stop_status){
+        isTriangle = true;
+    }else {
+        isTriangle = false;
+    }
+    updateButtonShape(false);
+}
 
 void CircleWidgetWithButton::toggleButtonShape() {
     isTriangle = !isTriangle; // 切换形状
@@ -23,7 +33,7 @@ void CircleWidgetWithButton::toggleButtonShape() {
 const QString Button_stop = "stop";
 const QString Button_start = "start";
 
-void CircleWidgetWithButton::updateButtonShape() {
+void CircleWidgetWithButton::updateButtonShape(bool sendornot) {
     // 更新按钮的遮罩
     QBitmap mask(shapeButton->size());
     mask.clear();
@@ -35,11 +45,15 @@ void CircleWidgetWithButton::updateButtonShape() {
         //triangle << QPointF(50, 10) << QPointF(10, 30) << QPointF(50, 50);
         triangle << QPointF(15, 50) << QPointF(15, 10) << QPointF(60,30);
         painter.drawPolygon(triangle);
-        sendMessage(Button_stop);
+        if (sendornot){
+            sendMessage(Button_stop_status);
+        }
     } else {
         // 矩形遮罩
         painter.drawRect(10, 10, 40, 40);
-        sendMessage(Button_start);
+        if (sendornot){
+            sendMessage(Button_start_status);
+        }
     }
     shapeButton->setMask(mask);
 //shapeButton->setStyleSheet("background-color: skyblue; border: none;");

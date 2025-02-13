@@ -1,14 +1,8 @@
 #ifndef _START_WORKER_H_
 #define _START_WORKER_H_
 #include <QThread>
-#include <QDBusConnection>
-#include <QDBusMessage>
-#include <QDBusReply>
-#include <QFile>
 #include <QDebug>
-#include <QTimer>
 #include <QProcess>
-#include "dbus.h"
 
 class StartWorker : public QObject {
     Q_OBJECT
