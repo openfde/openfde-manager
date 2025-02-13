@@ -27,13 +27,13 @@ void CircleWidgetWithButton::toggleToStatus(QString status){
 
 void CircleWidgetWithButton::toggleButtonShape() {
     isTriangle = !isTriangle; // 切换形状
-    updateButtonShape(); // 更新按钮形状
+    updateButtonShape(true); // 更新按钮形状
 }
 
 const QString Button_stop = "stop";
 const QString Button_start = "start";
 
-void CircleWidgetWithButton::updateButtonShape(bool sendornot) {
+void CircleWidgetWithButton::updateButtonShape(bool withAction) {
     // 更新按钮的遮罩
     QBitmap mask(shapeButton->size());
     mask.clear();
@@ -45,15 +45,12 @@ void CircleWidgetWithButton::updateButtonShape(bool sendornot) {
         //triangle << QPointF(50, 10) << QPointF(10, 30) << QPointF(50, 50);
         triangle << QPointF(15, 50) << QPointF(15, 10) << QPointF(60,30);
         painter.drawPolygon(triangle);
-        if (sendornot){
-            sendMessage(Button_stop_status);
-        }
+        sendMessage(Button_stop_status,withAction);
     } else {
         // 矩形遮罩
         painter.drawRect(10, 10, 40, 40);
-        if (sendornot){
-            sendMessage(Button_start_status);
-        }
+        sendMessage(Button_stop_status,withAction);
+       
     }
     shapeButton->setMask(mask);
 //shapeButton->setStyleSheet("background-color: skyblue; border: none;");

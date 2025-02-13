@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(btn, &CircleWidgetWithButton::sendMessage, this, &MainWindow::onMessageReceived);
 }
 
-void MainWindow::onMessageReceived( const QString & string , bool withoutAction) {
+void MainWindow::onMessageReceived( const QString & string , bool withAction) {
     qDebug() << "ReceiverClass: Received message:" << string;
     installWorker = new Worker();
 	if (string  == button_start_status) {
@@ -92,12 +92,14 @@ void MainWindow::onMessageReceived( const QString & string , bool withoutAction)
         QObject::connect(startWorker, &StartWorker::startEnded, this, &MainWindow::onRunEnded());	
         startThread->start();
     }else if (string == button_stop){
-        //执行脚本fde_utils stop 
-        QProcess *process = new QProcess();
-        process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"stop");
-        process->waitForFinished(-1);
-        QString output(process->readAllStandardOutput());
-        qDebug() << "fde_utils output:" << output;
+        if ( withAction){
+             //执行脚本fde_utils stop 
+            QProcess *process = new QProcess();
+            process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"stop");
+            process->waitForFinished(-1);
+            QString output(process->readAllStandardOutput());
+            qDebug() << "fde_utils output:" << output;
+        }
     }
 }
 
@@ -114,7 +116,6 @@ void MainWindow::showImage(const QString &imagePath) {
     process->waitForFinished(-1);
     //获取waitForFinished返回值
     int exitCode = process->exitCode();
-    QSTring imagePath ;
     if (exitCode == 1) {//0 means fde is stopped
     // 加载图片
         QString retScreen = dbus_utils::utils("screenshot");

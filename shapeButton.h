@@ -17,7 +17,7 @@ public:
     explicit CircleWidgetWithButton(QWidget *parent = nullptr) ;
     void toggleToStatus(QString status);
 signals:
-    void sendMessage(const QString &message); // 定义信号
+    void sendMessage(const QString &message, bool withAction); // 定义信号
 
 protected:
     void paintEvent(QPaintEvent *event) override {
