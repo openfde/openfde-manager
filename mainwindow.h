@@ -6,6 +6,7 @@
 #include "download.h"
 #include "install_worker.h"
 #include "start_worker.h"
+#include <QMutex>
 #include <QMainWindow>
 #include <QPushButton>
 #include <QProgressBar>
