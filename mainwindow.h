@@ -72,6 +72,8 @@ private:
     int currentProgress;       // 当前进度
     bool extracting , installing, downloading;
     QProcess *cmdProcess;
+    //增加一个互斥锁
+    QMutex ImageMutex;
 };
 
 
@@ -88,7 +90,7 @@ protected:
 	    MainWindow* myWidget = qobject_cast<MainWindow*>(obj);
             if (myWidget) {
                 // 调用 MyWidget 的自定义方法
-                myWidget->showImage("");
+                myWidget->showImage();
             }
             // 在这里可以添加类似恢复操作的代码
         }

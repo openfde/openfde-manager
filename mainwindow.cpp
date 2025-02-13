@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "dbus.h"
+#include "logger.h"
 #include <unistd.h>
 #include <QRegularExpression>
 #include <QPixmap>
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 设置窗口大小
     this->setFixedSize(800, 600);
 
-
+    lastShowTime = 0 ;
     // 创建自定义标题栏
     createTitleBar();
 
@@ -120,23 +121,42 @@ void MainWindow::onRunEnded(){
 
 
 void MainWindow::showImage() {
-    //执行脚本fde_utils status
-    QProcess *process = new QProcess();
-    process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
-    process->waitForFinished(-1);
-    //获取waitForFinished返回值
-    int exitCode = process->exitCode();
-    QString imagePath = "/usr/share/backgrounds/openfde.png";
-    if (exitCode == 1) {//0 means fde is stopped
-        // 加载图片
-    	qDebug()<<"fde is started";
-        QString retScreen = dbus_utils::utils("screenshot");
-        if (retScreen == dbus_errorS) {
-            imageLabel->setText("Error: openFDE Service not started. ");
-            return ;
-        }
-        imagePath = "/tmp/openfde_screen.jpg";
+     QMutex ImageMutex;
+    //增加一个记录时间戳的变量
+    qint64 lastShowTime;
+    ImageMutex.lock();
+    if (lastShowTime == 0 || (QDateTime::currentMSecsSinceEpoch() - lastShowTime) > 10000) {
+        lastShowTime = QDateTime::currentMSecsSinceEpoch();
+        ImageMutex.unlock();
+    } else {
+        ImageMutex.unlock();
+        return;
     }
+    QFile utilsFile("/usr/bin/fde_utils");
+    QString imagePath = "/usr/share/backgrounds/openfde.png";
+    if (utilsFile.exists()) {
+        //执行脚本fde_utils status
+        QProcess *process = new QProcess();
+        process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
+        process->waitForFinished(-1);
+        //获取waitForFinished返回值
+        int exitCode = process->exitCode();
+        if (exitCode == 1) {//0 means fde is stopped
+            // 加载图片
+            qDebug()<<"fde is started";
+            QString retScreen = dbus_utils::utils("screenshot");
+            if (retScreen == dbus_errorS) {
+                imageLabel->setText("Error: openFDE Service not started. ");
+                return ;
+            }
+            imagePath = "/tmp/openfde_screen.jpg";
+            QFile screenFile(imagePath);
+            if (! screenFile.exists()) {
+                imagePath = "/usr/share/backgrounds/openfde.png";
+            }
+        }
+    }
+   
     QPixmap pixmap(imagePath);
     if (pixmap.isNull()) {
         qDebug()<<"failed to load "<<imagePath;
@@ -199,11 +219,16 @@ void MainWindow::createTitleBar()
 
 void MainWindow::onSettingsButtonClicked()
 {
-    //弹出一个对话框，显示当前的版本号
+    //获取版本信息
     QString versionFDE = dbus_utils::tools("version_fde");
     QString ctrlFDE = dbus_utils::tools("version_ctrl");
-    //在MessageBox中同时显示两个版本号
-    QMessageBox::information(this, "版本信息", "FDE版本：" + versionFDE + "\n" + "控制程序版本：" + ctrlFDE);
+    
+    //创建无图标的消息框
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("版本信息");
+    msgBox.setText("FDE版本：" + versionFDE + "\n控制程序版本：" + ctrlFDE);
+    msgBox.setIcon(QMessageBox::NoIcon);
+    msgBox.exec();
 }
 
 void MainWindow::onMinimizeButtonClicked()
@@ -288,7 +313,7 @@ void MainWindow::updateProgress()
         qDebug() << "状态:" << action;
         qDebug() << "数字:" << number;
     } else {
-        qDebug() << "无法解析字符串:" << output;
+        Logger::log( Logger::DEBUG,"No matching status found: " + output.toStdString());
 	    if (output == "installed\n") {
 		       timer->stop(); // 进度完成后停止定时器
 		       statusLabel->setText("安装完成！");
