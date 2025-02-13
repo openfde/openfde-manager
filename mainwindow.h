@@ -43,10 +43,10 @@ private slots:
      // 显示图片的槽函数
     void onRunEnded();
 public slots:
-    void showImage(const QString &imagePath);
+    void showImage();
 signals:
    // 自定义信号
-    void imageSignal(const QString &imagePath);
+    void imageSignal();
 
 private:
    

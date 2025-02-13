@@ -119,8 +119,8 @@ void MainWindow::onRunEnded(){
 
 
 
-void MainWindow::showImage(const QString &image1Path) {
-    //执行脚本fde_utils stop 
+void MainWindow::showImage() {
+    //执行脚本fde_utils status
     QProcess *process = new QProcess();
     process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
     process->waitForFinished(-1);
@@ -128,7 +128,7 @@ void MainWindow::showImage(const QString &image1Path) {
     int exitCode = process->exitCode();
     QString imagePath = "/usr/share/backgrounds/openfde.png";
     if (exitCode == 1) {//0 means fde is stopped
-    // 加载图片
+        // 加载图片
     	qDebug()<<"fde is started";
         QString retScreen = dbus_utils::utils("screenshot");
         if (retScreen == dbus_errorS) {
@@ -137,10 +137,9 @@ void MainWindow::showImage(const QString &image1Path) {
         }
         imagePath = "/tmp/openfde_screen.jpg";
     }
-qDebug()<<"new pixmap"<<imagePath;
     QPixmap pixmap(imagePath);
     if (pixmap.isNull()) {
-qDebug()<<"failed to load "<<imagePath;
+        qDebug()<<"failed to load "<<imagePath;
         imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
     } else {
         centralWidget->resize(this->width(),this->height()-30);
@@ -200,7 +199,11 @@ void MainWindow::createTitleBar()
 
 void MainWindow::onSettingsButtonClicked()
 {
- QMessageBox::information(this, "设置", "设置按钮被点击了！");
+    //弹出一个对话框，显示当前的版本号
+    QString versionFDE = dbus_utils::tools("version_fde");
+    QString ctrlFDE = dbus_utils::tools("version_ctrl");
+    //在MessageBox中同时显示两个版本号
+    QMessageBox::information(this, "版本信息", "FDE版本：" + versionFDE + "\n" + "控制程序版本：" + ctrlFDE);
 }
 
 void MainWindow::onMinimizeButtonClicked()
@@ -239,7 +242,7 @@ void MainWindow::initProgress()
         return ;
     }else  if ( output == "installed\n"){
        btn->show();
-       emit imageSignal("/home/warlice/2.png"); // 图片路
+       emit imageSignal(); 
        return;
     }
 
@@ -292,7 +295,7 @@ void MainWindow::updateProgress()
 		       statusLabel->hide();
 		       progressBar->hide();
 		       btn->show();
-		       emit imageSignal("/home/warlice/2.png"); // 图片路
+		       emit imageSignal(); 
 	    }
 	    return;
     }

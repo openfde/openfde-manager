@@ -12,10 +12,6 @@ int FileDownloader:: downloadFile(const QUrl &url, const QString &savePath) {
     // 设置定时器，超时后退出事件循环
     timer.setSingleShot(true); // 单次触发
     QObject::connect(&timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit);
-        // 连接信号和槽
-        //connect(reply, &QNetworkReply::finished, this, &FileDownloader::onDownloadFinished);
-        //connect(reply, &QNetworkReply::readyRead, this, &FileDownloader::onReadyRead);
-	 // 连接信号和槽，当下载完成时退出事件循环
     QObject::connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
     // 启动定时器 10s timeout
     timer.start(10000);
