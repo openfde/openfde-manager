@@ -74,6 +74,8 @@ private:
     QProcess *cmdProcess;
     //增加一个互斥锁
     QMutex ImageMutex;
+    //增加一个记录时间戳的变量
+    qint64 lastShowTime;
 };
 
 
