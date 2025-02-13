@@ -123,13 +123,13 @@ void MainWindow::onRunEnded(){
 void MainWindow::showImage() {
      QMutex ImageMutex;
     //增加一个记录时间戳的变量
-    qint64 lastShowTime;
     ImageMutex.lock();
     if (lastShowTime == 0 || (QDateTime::currentMSecsSinceEpoch() - lastShowTime) > 10000) {
         lastShowTime = QDateTime::currentMSecsSinceEpoch();
         ImageMutex.unlock();
     } else {
         ImageMutex.unlock();
+        Logger::log(Logger::DEBUG,"less than ten secs");
         return;
     }
     QFile utilsFile("/usr/bin/fde_utils");
