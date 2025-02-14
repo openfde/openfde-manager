@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     WindowActivateFilter filter;
     MainWindow w;
     w.installEventFilter(&filter);
+    w.setWindowIcon(QIcon(":/images/openfde_icon.png"));
     w.show();
     return a.exec();
 }

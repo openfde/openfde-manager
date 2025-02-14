@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     // 设置窗口大小
-    this->setFixedSize(800, 600);
+    this->setFixedSize(420, 270);
 
     lastShowTime = 0 ;
     // 创建自定义标题栏
@@ -39,12 +39,14 @@ MainWindow::MainWindow(QWidget *parent)
     imageLabel = new QLabel(this);
     QPixmap pixmap(":/images/openfde.png"); // 图片路径，需要将图片添加到资源文件中
     imageLabel->setPixmap(pixmap.scaled(this->size(), Qt::KeepAspectRatioByExpanding));
+    //imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio)); // 缩放图片并显示
     imageLabel->setGeometry(0, 30, this->width(), this->height() - 30); // 留出标题栏的空间
     imageLabel->lower();
 
     btn = new CircleWidgetWithButton(this);
+    //btn->move((this->width()-30)/2,(this->height()-30)/2);
+    btn->move(100,50);
     btn->show();
-    btn->move(300,200);
 
     QFile fdeUtils("/usr/bin/fde_utils");
     if (fdeUtils.exists()){
@@ -187,7 +189,7 @@ void MainWindow::createTitleBar()
     layout->setContentsMargins(5, 0, 5, 0); // 设置布局边距
 
     // 添加标题
-    QLabel *titleLabel = new QLabel("FDE Manager", titleBar); // 创建标题标签
+    QLabel *titleLabel = new QLabel("OpenFDE", titleBar); // 创建标题标签
     titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #333333;"); // 设置标题样式
     layout->addWidget(titleLabel); // 将标题添加到布局左侧
 
@@ -225,6 +227,7 @@ void MainWindow::onSettingsButtonClicked()
     
     //创建无图标的消息框
     QMessageBox msgBox(this);
+    msgBox.setFixedSize(100,50);
     msgBox.setWindowTitle("版本信息");
     msgBox.setText("FDE版本：" + versionFDE + "\n控制程序版本：" + ctrlFDE);
     msgBox.setIcon(QMessageBox::NoIcon);
@@ -279,7 +282,7 @@ void MainWindow::initProgress()
     // 创建布局
     currentProgress = 0 ;
 
-    centralWidget->resize(800,100);
+    centralWidget->resize(600,100);
     centralWidget->move(0,30);
     centralWidget->show();
     //centralWidget->setStyleSheet("background-color: lightblue;");
