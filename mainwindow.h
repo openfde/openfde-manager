@@ -44,14 +44,14 @@ private slots:
      // 显示图片的槽函数
     void onRunEnded();
 public slots:
-    void showImage();
+    void showImage(bool immediately=false);
 signals:
    // 自定义信号
-    void imageSignal();
+    void imageSignal(bool immediately=false);
 
 private:
    
-    void initProgress();
+    int initProgress();
     void createTitleBar(); // 创建自定义标题栏
 
     QLabel *imageLabel;

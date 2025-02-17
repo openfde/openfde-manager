@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     btn = new CircleWidgetWithButton(this);
     //btn->move((this->width()-30)/2,(this->height()-30)/2);
-    btn->move(100,50);
+    btn->move(100,80);
     btn->show();
 
     QFile fdeUtils("/usr/bin/fde_utils");
@@ -96,7 +96,11 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
             }
 	    }
        
-        initProgress();
+        int ret = initProgress();
+	if ( ret == -1 ){
+		Logger::log(Logger::ERROR,"got error for checking whether openfde installed, maybe fde-dbus service not running");
+		return ;
+	}
         startWorker = new StartWorker();
         startThread = new QThread();
         startWorker->moveToThread(startThread);
@@ -112,6 +116,7 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
             process->waitForFinished(-1);
             QString output(process->readAllStandardOutput());
             qDebug() << "fde_utils output:" << output;
+	    this->showImage(true);
         }
     }
 }
@@ -122,11 +127,11 @@ void MainWindow::onRunEnded(){
 
 
 
-void MainWindow::showImage() {
+void MainWindow::showImage(bool immediately) {
      QMutex ImageMutex;
     //增加一个记录时间戳的变量
     ImageMutex.lock();
-    if (lastShowTime == 0 || (QDateTime::currentMSecsSinceEpoch() - lastShowTime) > 10000) {
+    if (lastShowTime == 0 || (QDateTime::currentMSecsSinceEpoch() - lastShowTime) > 10000 || immediately) {
         lastShowTime = QDateTime::currentMSecsSinceEpoch();
         ImageMutex.unlock();
     } else {
@@ -245,8 +250,18 @@ void MainWindow::onCloseButtonClicked()
 }
 
 
-void MainWindow::initProgress()
+int MainWindow::initProgress()
 {
+    QString output = dbus_utils::tools(dbus_methodStatus);
+    if ( output == "error") {
+        return -1;
+    }else  if ( output == "installed\n"){
+       emit imageSignal(); 
+       return 0;
+    }
+    imageLabel->hide();
+    btn->hide();
+
     workThread = new QThread();
     // 将 Worker 移动到子线程
     installWorker->moveToThread(workThread);
@@ -259,20 +274,6 @@ void MainWindow::initProgress()
     // 创建状态标签
     statusLabel = new QLabel("准备中...", this);
     statusLabel->setAlignment(Qt::AlignCenter);
-
-    imageLabel->hide();
-    btn->hide();
-
-    QString output = dbus_utils::tools(dbus_methodStatus);
-    if ( output == "error") {
-        statusLabel->setText("Error: openFDE Service not started. ");
-    	centralLayout->addWidget(statusLabel);
-        return ;
-    }else  if ( output == "installed\n"){
-       btn->show();
-       emit imageSignal(); 
-       return;
-    }
 
     // 连接 Worker 的信号和槽
     QObject::connect(workThread, &QThread::started, installWorker, &Worker::doInstallWork);
@@ -299,6 +300,7 @@ void MainWindow::initProgress()
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateProgress);
     timer->start(1000); // 每秒更新一次进度
+    return 0;
 }
 
 
@@ -331,13 +333,13 @@ void MainWindow::updateProgress()
     currentProgress = number;
     if (action ==  "installing") {
         status = "安装中... ";
-    installing=true;
+	installing=true;
     }else if (action == "extracting") {
         extracting=true;
-    status="解压中... " ;
+    	status="解压中... " ;
     }else if (action == "downloading"){
         downloading = true;
-    status="下载中... ";
+    	status="下载中... ";
     }else{
         if (!installing && !extracting && !downloading){//fix the status reversed by an unexpected status
             currentProgress = 0 ;
