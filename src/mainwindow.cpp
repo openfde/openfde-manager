@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     // 设置窗口大小
-    this->setFixedSize(420, 270);
+    this->setFixedSize(420, 267);
 
     lastShowTime = 0 ;
     // 创建自定义标题栏
@@ -38,14 +38,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     imageLabel = new QLabel(this);
     QPixmap pixmap(":/images/openfde.png"); // 图片路径，需要将图片添加到资源文件中
-    imageLabel->setPixmap(pixmap.scaled(this->size(), Qt::KeepAspectRatioByExpanding));
-    //imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio)); // 缩放图片并显示
+    //imageLabel->setPixmap(pixmap.scaled(this->size(), Qt::KeepAspectRatioByExpanding));
     imageLabel->setGeometry(0, 30, this->width(), this->height() - 30); // 留出标题栏的空间
+    imageLabel->setPixmap(pixmap.scaled(425,237, Qt::KeepAspectRatio)); // 缩放图片并显示
     imageLabel->lower();
 
     btn = new CircleWidgetWithButton(this);
     //btn->move((this->width()-30)/2,(this->height()-30)/2);
-    btn->move(100,80);
+    btn->move(100,50);
     btn->show();
 
     QFile fdeUtils("/usr/bin/fde_utils");
@@ -171,8 +171,9 @@ void MainWindow::showImage(bool immediately) {
     } else {
         centralWidget->resize(this->width(),this->height()-30);
         centralWidget->move(0,30);
+        imageLabel->setGeometry(0, 30, this->width(), this->height() - 30); // 留出标题栏的空间
         //imageLabel->setPixmap(pixmap.scaled(this->size(), Qt::KeepAspectRatioByExpanding));
-        imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio)); // 缩放图片并显示
+        imageLabel->setPixmap(pixmap.scaled(425,237, Qt::KeepAspectRatio)); // 缩放图片并显示
         imageLabel->show();
     }
 }
@@ -188,7 +189,8 @@ void MainWindow::createTitleBar()
     // 创建标题栏容器
     QWidget *titleBar = new QWidget(this);
     titleBar->setGeometry(0, 0, this->width(), 30); // 设置标题栏大小
-    titleBar->setStyleSheet("background-color: #ffffff;"); // 设置标题栏背景颜色为白色
+   // titleBar->setStyleSheet("background-color: #1e90ff;"); // 设置标题栏背景颜色为白色
+    titleBar->setStyleSheet("background-color: #e0e0e0;"); // 设置标题栏背景颜色为白色
 							   //
     QHBoxLayout *layout = new QHBoxLayout(titleBar);
     layout->setContentsMargins(5, 0, 5, 0); // 设置布局边距
@@ -196,6 +198,7 @@ void MainWindow::createTitleBar()
     // 添加标题
     QLabel *titleLabel = new QLabel("OpenFDE", titleBar); // 创建标题标签
     titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #333333;"); // 设置标题样式
+    //titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #808080;"); // 设置标题样式
     layout->addWidget(titleLabel); // 将标题添加到布局左侧
 
     // 创建设置按钮
