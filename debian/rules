@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# 编译 src 目录中的代码
+	cd src && $(MAKE)
+
+override_dh_auto_clean:
+	# 清理 src 目录中的构建文件
+	cd src && $(MAKE) clean

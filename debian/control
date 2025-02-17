@@ -1,0 +1,12 @@
+Source: OpenFDE-ui
+Section: utils
+Priority: optional
+Maintainer: warlice <warlice@openfde.com>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: https://openfde.com
+
+Package: OpenFDE-ui
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A graphic user interface to manager OpenFDE.
