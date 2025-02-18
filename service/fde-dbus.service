@@ -1,0 +1,11 @@
+[Unit]
+Description=OpenFDE D-Bus Service
+After=dbus.service
+Requires=dbus.service
+
+[Service]
+ExecStart=/opt/apps/com.openfde/usr/bin/openfde.service
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

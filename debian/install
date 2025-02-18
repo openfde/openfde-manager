@@ -1,0 +1,5 @@
+src/openfde-ui /opt/apps/com.openfde/usr/bin/
+service/fde-dbus.service /opt/apps/com.openfde/usr/lib/systemd/system/
+service/openfde.service /opt/apps/com.openfde/usr/bin/
+data/openfde-ui.desktop /usr/share/applications/
+data/openfde-ui.png  /usr/share/icons/hicolor/96x96/apps/

@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QProcess>
 #include "dbus.h"
+#include "logger.h"
 
 // Worker 类，用于执行后台任务
 class Worker : public QObject {
@@ -17,11 +18,11 @@ public:
 
 public slots:
     void doInstallWork() {
-	    // 创建一个方法调用消息
-        qDebug() << "Worker: 开始执行任务，线程 ID:" << QThread::currentThreadId();
-        dbus_utils::tools("install");
-        qDebug() << "脚本执行完成";
-        emit workFinished(); // 发送任务完成信号
+	// 创建一个方法调用消息
+	Logger::log(Logger::INFO,"start to run installing worker");
+	dbus_utils::tools("install");
+	Logger::log(Logger::INFO,"installing procedure worker end");
+	emit workFinished(); // 发送任务完成信号
     }
 
 signals:

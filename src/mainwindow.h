@@ -24,10 +24,7 @@ class MainWindow : public QMainWindow
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event) override {
-    qDebug() << "Window is activated before";
         if (event->type() == QEvent::WindowActivate) {
-            qDebug() << "Window is activated";
-            // 在这里可以添加类似恢复操作的代码
         }
         return QObject::eventFilter(obj, event);
     }
@@ -89,7 +86,6 @@ public:
 protected:
     bool eventFilter(QObject* obj, QEvent* event) override {
         if (event->type() == QEvent::WindowActivate) {
-            qDebug() << "Window is activated";
 	    MainWindow* myWidget = qobject_cast<MainWindow*>(obj);
             if (myWidget) {
                 // 调用 MyWidget 的自定义方法

@@ -1,3 +1,5 @@
+#ifndef _LOGGER_H_
+#define _LOGGER_H_
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -43,3 +45,4 @@ private:
         return std::string(buffer);
     }
 };
+#endif
