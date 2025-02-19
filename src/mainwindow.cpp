@@ -124,7 +124,7 @@ void MainWindow::onRunEnded(){
 
 
 static const QString fdeUtilsPath = "/usr/bin/fde_utils";
-static const QString imagePath = ":/images/openfde.png";
+static const QString imagesPath = ":/images/openfde.png";
 void MainWindow::showImage(bool immediately) {
 	QMutex ImageMutex;
     //增加一个记录时间戳的变量
@@ -138,7 +138,7 @@ void MainWindow::showImage(bool immediately) {
 		return;
 	}
 	QFile utilsFile(fdeUtilsPath);
-	QString imagePath = imagePath;
+	QString imagePath = imagesPath;
 	if (utilsFile.exists()) {
 		//执行脚本fde_utils status
 		QProcess *process = new QProcess();
