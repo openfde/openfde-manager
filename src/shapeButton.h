@@ -16,7 +16,7 @@ class CircleWidgetWithButton : public QWidget {
 	Q_OBJECT
 public:
     explicit CircleWidgetWithButton(QWidget *parent = nullptr) ;
-    void toggleToStatus(QString status);
+    void toggleToStatus(QString status,bool send = false);
 signals:
     void sendMessage(const QString &message, bool withAction); // 定义信号
 
@@ -41,7 +41,7 @@ private slots:
 private:
     QPushButton *shapeButton; // 形状切换按钮
     bool isTriangle; // 当前形状是否为三角形
-    void updateButtonShape(bool sendorNot = true);
+    void updateButtonShape(bool send = true);
     QMutex mutex;
 };
 

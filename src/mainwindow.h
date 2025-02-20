@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QEvent>
+#include <QProgressDialog>
 #include "shapeButton.h"
 #include "download.h"
 #include "install_worker.h"
@@ -42,16 +43,20 @@ private slots:
     void onRunEnded();
 public slots:
     void showImage(bool immediately=false);
+    void cancelInstalling();
+	
 signals:
    // 自定义信号
     void imageSignal(bool immediately=false);
 
 private:
    
+    void ceaseInstalling();
     int initProgress();
     void createTitleBar(); // 创建自定义标题栏
 
     QLabel *imageLabel;
+    QProgressDialog *progress;
     Worker *installWorker;
     StartWorker *startWorker;
     QThread *startThread;
@@ -68,12 +73,13 @@ private:
     QLabel *statusLabel;       // 状态标签
     QTimer *timer;             // 定时器
     int currentProgress;       // 当前进度
-    bool extracting , installing, downloading;
+    bool extracting, installing, downloading, preparing;
     QProcess *cmdProcess;
     //增加一个互斥锁
     QMutex ImageMutex;
     //增加一个记录时间戳的变量
     qint64 lastShowTime;
+    QPushButton *cancelButton;
 };
 
 

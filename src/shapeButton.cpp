@@ -14,13 +14,13 @@ CircleWidgetWithButton::CircleWidgetWithButton(QWidget *parent):  QWidget(parent
     connect(shapeButton, &QPushButton::clicked, this, &CircleWidgetWithButton::toggleButtonShape);
 }
 
-void CircleWidgetWithButton::toggleToStatus(QString status){
+void CircleWidgetWithButton::toggleToStatus(QString status, bool send){
     if (status == button_stop_status){
         isTriangle = true;
     }else {
         isTriangle = false;
     }
-    updateButtonShape(false);
+    updateButtonShape(send);
 }
 
 void CircleWidgetWithButton::toggleButtonShape() {

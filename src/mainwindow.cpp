@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "dbus.h"
+#include <QProgressDialog>
 #include "logger.h"
 #include <unistd.h>
 #include <QRegularExpression>
@@ -97,6 +98,9 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 			Logger::log(Logger::ERROR,"got error for checking whether openfde installed, maybe fde-dbus service not running");
 			return ;
 		}
+		if (ret == 2 ) {//installing
+			return ;
+		}
 		startWorker = new StartWorker();
 		startThread = new QThread();
 		startWorker->moveToThread(startThread);
@@ -107,6 +111,7 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 	}else if (string == button_stop_status){
 		if ( withAction){
 			//执行脚本fde_utils stop 
+			Logger::log(Logger::INFO, " on mesage for button stop status fde_utils ");
 			QProcess *process = new QProcess();
 			process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"stop");
 			process->waitForFinished(-1);
@@ -126,11 +131,14 @@ static const QString fdeUtilsPath = "/usr/bin/fde_utils";
 static const QString imagesPath = ":/images/openfde.png";
 void MainWindow::showImage(bool immediately) {
 	QMutex ImageMutex;
-    //增加一个记录时间戳的变量
+	if ( preparing ){
+		return ;
+	}
 	ImageMutex.lock();
+    	//增加一个记录时间戳的变量
 	if (lastShowTime == 0 || (QDateTime::currentMSecsSinceEpoch() - lastShowTime) > 10000 || immediately) {
-	lastShowTime = QDateTime::currentMSecsSinceEpoch();
-	ImageMutex.unlock();
+		lastShowTime = QDateTime::currentMSecsSinceEpoch();
+		ImageMutex.unlock();
 	} else {
 		ImageMutex.unlock();
 		Logger::log(Logger::DEBUG,"less than ten secs do not to update screenshot");
@@ -263,18 +271,60 @@ int MainWindow::initProgress()
     imageLabel->hide();
     btn->hide();
 
+    preparing=true;
     workThread = new QThread();
     // 将 Worker 移动到子线程
     installWorker->moveToThread(workThread);
-
-    // 创建进度条
-    progressBar = new QProgressBar(this);
-    progressBar->setRange(0, 100); // 设置进度范围
-    progressBar->setValue(0);      // 初始值为 0
-				   //
     // 创建状态标签
     statusLabel = new QLabel("准备中...", this);
     statusLabel->setAlignment(Qt::AlignCenter);
+    statusLabel->setStyleSheet(
+		"QLabel {"
+		"    font-size: 14px;"
+		"    font-weight: bold;"
+		"    color: #1E90FF;"  
+		"}"
+	);
+
+    // 创建进度条
+    progressBar = new QProgressBar(this);
+    progressBar->setStyleSheet(
+		"QProgressBar {"
+		"   border: 2px solid #1E90FF;"
+		"   border-radius: 5px;"
+		"   background-color: #F5F5F5;"
+		"   color: black;"
+		"   text-align: center;"
+		"}"
+		"QProgressBar::chunk {"
+		"   background-color: #1E90FF;"
+		"   border-radius: 3px;"
+		"}"
+	);
+    progressBar->setRange(0, 100); // 设置进度范围
+    progressBar->setValue(0);      // 初始值为 0
+    progressBar->setTextVisible(false);
+// 创建取消按钮
+    cancelButton = new QPushButton("取消", this);
+    cancelButton->setStyleSheet(
+		"QPushButton {"
+		"   background-color: #E0E0E0;"
+		"   border: 2px solid #CCCCCC;"
+		"   border-radius: 5px;"
+		"   padding: 5px 10px;"
+		"}"
+		"QPushButton:hover {"
+		"   background-color: #D0D0D0;"
+		"}"
+	);
+	
+    connect(cancelButton, &QPushButton::clicked, this, &MainWindow::cancelInstalling);
+    //statusLabel->move(progressBar->x(), progressBar->y() - 25);
+    cancelButton->setParent(this);
+    cancelButton->move(300,200);
+    cancelButton->show();
+    statusLabel->move(160,100);
+    statusLabel->show();
 
     // 连接 Worker 的信号和槽
     QObject::connect(workThread, &QThread::started, installWorker, &Worker::doInstallWork);
@@ -284,15 +334,16 @@ int MainWindow::initProgress()
     // 创建布局
     currentProgress = 0 ;
 
-    centralWidget->resize(600,100);
-    centralWidget->move(0,30);
+    //centralLayout->addWidget(statusLabel);
+    centralLayout->addWidget(progressBar);
+
+    centralWidget->resize(420,100);
+    //centralWidget->move(0,-30);
     centralWidget->show();
     //centralWidget->setStyleSheet("background-color: lightblue;");
     centralWidget->move(0,this->height()/2 - centralWidget->height()/4);
 
-    centralLayout->addWidget(progressBar);
 
-    centralLayout->addWidget(statusLabel);
     extracting=false;
     installing=false;
     downloading=false;
@@ -301,10 +352,46 @@ int MainWindow::initProgress()
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateProgress);
     timer->start(1000); // 每秒更新一次进度
-    return 0;
+    return 2;
+}
+
+void MainWindow::cancelInstalling(){
+	QMessageBox::StandardButton reply = QMessageBox::question(this, 
+	"确认取消", 
+	"确定要取消下载吗？",
+	QMessageBox::Yes | QMessageBox::No);
+	if (reply == QMessageBox::Yes) {
+		/*progress = new QProgressDialog("取消中...", "", 0, 0,this);
+		progress->setWindowModality(Qt::WindowModal);
+		progress->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+		progress->setCancelButton(nullptr);
+		progress->resize(100,50);
+		progress->move(160,100);
+		progress->show();
+		*/
+		// 执行取消脚本
+		QString output = dbus_utils::tools("stop");
+		//progress->close();
+		// 清理界面
+		ceaseInstalling();
+		btn->toggleToStatus(button_stop_status);
+	}
 }
 
 
+void MainWindow::ceaseInstalling() {
+	cancelButton->close();
+	statusLabel->hide();
+	progressBar->hide();
+	installing = false;
+	downloading = false;
+	extracting = false;
+	preparing = false;
+	timer->stop(); // 进度完成后停止定时器
+	btn->show();
+	emit imageSignal(true); 
+	Logger::log(Logger::INFO,"cease installing");
+}
 
 void MainWindow::updateProgress()
 {
@@ -320,13 +407,12 @@ void MainWindow::updateProgress()
 	} else {
         	Logger::log( Logger::DEBUG,"No matching status found: " + output.toStdString());
 		if (output == "installed\n") {
-			timer->stop(); // 进度完成后停止定时器
         		Logger::log( Logger::DEBUG,"installed successfully");
 			statusLabel->setText("安装完成！");
-			statusLabel->hide();
-			progressBar->hide();
-			btn->show();
-			emit imageSignal(); 
+			currentProgress=100;
+			progressBar->setValue(currentProgress);
+			ceaseInstalling();
+    			btn->toggleToStatus(button_start_status,true);
 		}
 	 	return;
 	}
@@ -347,7 +433,7 @@ void MainWindow::updateProgress()
 			status="下载中... ";
 		}
 	}
-	statusLabel->setText(status + QString::number(currentProgress) + "%");
+	statusLabel->setText(status);
 	// 更新进度条
 	progressBar->setValue(currentProgress);
 }

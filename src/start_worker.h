@@ -15,6 +15,7 @@ public:
 public slots:
 	void doStartWork() {
 		// 创建一个方法调用消息
+		Logger::log(Logger::DEBUG,  "to start fde");
 		int exitCode = QProcess::execute("bash", QStringList() << "/usr/bin/fde_utils"<<"start"<<"shortcut");
 		if (exitCode == 0) {
 			Logger::log(Logger::DEBUG,  "fde_utils executed successfully");
