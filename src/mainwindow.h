@@ -49,6 +49,10 @@ signals:
    // 自定义信号
     void imageSignal(bool immediately=false);
 
+protected:
+void mouseDoubleClickEvent(QMouseEvent *event) override {
+	Logger::log(Logger::INFO,"double click");
+}
 private:
    
     void ceaseInstalling();
