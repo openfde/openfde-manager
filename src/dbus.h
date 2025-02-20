@@ -23,7 +23,7 @@ public:
 		QDBusMessage message = QDBusMessage::createMethodCall(
 		"com.openfde.Manager",          // 服务名
 		"/com/openfde/Manager",         // 对象路径
-		"openfde.Service",          // 接口名
+		"openfde.service",          // 接口名
 		"Construct"                       // 方法名
 		 );
 
@@ -45,7 +45,7 @@ public:
 		QDBusMessage message = QDBusMessage::createMethodCall(
 		"com.openfde.Manager",          // 服务名
 		"/com/openfde/Manager",         // 对象路径
-		"openfde.Service",          // 接口名
+		"openfde.service",          // 接口名
 		"Utils"                           // 方法名
 		);
 		QList<QVariant> args;
@@ -69,7 +69,7 @@ public:
 		QDBusMessage message = QDBusMessage::createMethodCall(
 		"com.openfde.Manager",          // 服务名
 		"/com/openfde/Manager",         // 对象路径
-		"openfde.Service",          // 接口名
+		"openfde.service",          // 接口名
 		"Tools"                           // 方法名
 		);
 

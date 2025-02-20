@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QMainWindow>
 #include "start_worker.h"
+#include <QMutex>
 
 static const QString button_stop_status = "stop";
 static const QString button_start_status = "start";
@@ -41,5 +42,6 @@ private:
     QPushButton *shapeButton; // 形状切换按钮
     bool isTriangle; // 当前形状是否为三角形
     void updateButtonShape(bool sendorNot = true);
+    QMutex mutex;
 };
 

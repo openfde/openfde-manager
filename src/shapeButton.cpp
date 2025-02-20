@@ -37,19 +37,29 @@ void CircleWidgetWithButton::updateButtonShape(bool withAction) {
     mask.clear();
     QPainter painter(&mask);
     painter.setBrush(Qt::color1);
+    mutex.lock();
     if (isTriangle) {
         // 三角形遮罩
         QPolygonF triangle;
         //triangle << QPointF(50, 10) << QPointF(10, 30) << QPointF(50, 50);
         triangle << QPointF(15, 50) << QPointF(15, 10) << QPointF(60,30);
         painter.drawPolygon(triangle);
-        sendMessage(button_stop_status,withAction);
+	if (!withAction) {
+			
+	}else{
+        	emit sendMessage(button_stop_status,withAction);
+	}
     } else {
         // 矩形遮罩
         painter.drawRect(10, 10, 40, 40);
-        sendMessage(button_start_status,withAction);
+	if (!withAction) {
+
+	}else {
+		emit sendMessage(button_start_status,withAction);
+	}
        
     }
+    mutex.unlock();
     shapeButton->setMask(mask);
 //shapeButton->setStyleSheet("background-color: skyblue; border: none;");
     shapeButton->setStyleSheet("background-color: skyblue;");

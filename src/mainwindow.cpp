@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
-    connect(btn, &CircleWidgetWithButton::sendMessage, this, &MainWindow::onMessageReceived);
+    connect(btn, &CircleWidgetWithButton::sendMessage, this, &MainWindow::onMessageReceived,Qt::QueuedConnection);
 }
 
 static const QString getOpenfdeUrl = "http://phyvirt.openfde.com/getopenfde/get-openfde.sh";
@@ -70,7 +70,7 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 	if (string  == button_start_status) {
 		QString filepath = "/usr/bin/get_fde.sh";
 		QFile getfde(filepath);
-	//check the exist of the primary script get_fde.sh
+		//check the exist of the primary script get_fde.sh
 		if (!getfde.exists()){
 			QUrl url(getOpenfdeUrl); // 下载文件的 URL
 			QString savePath("/tmp/get-openfde.sh");
@@ -78,23 +78,22 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 			int ret = downloader->downloadFile(url, savePath);
 			if ( ret != 0 ){ //download file failed
 			 // 创建状态标签
-				QLabel *status = new QLabel("Error: network or disk error", this);
-				status->setAlignment(Qt::AlignCenter);
-				centralLayout->addWidget(status);
+				QMessageBox::critical(this,tr("Error"), tr("网络或磁盘故障"),QMessageBox::Ok);
+    				btn->toggleToStatus(button_stop_status);
 				return ;
 			}
 			//construct /usr/bin/get_fde.sh
 			QString retS = dbus_utils::construct();
 			if (retS == dbus_errorS) {
 				// 创建状态标签
-				QLabel *status = new QLabel("Error: openFDE Service not started.", this);
-				status->setAlignment(Qt::AlignCenter);
-				centralLayout->addWidget(status);
+				QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
+    				btn->toggleToStatus(button_stop_status);
 				return ;
 			}
 		}
 		int ret = initProgress();
 		if ( ret == -1 ){
+			QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
 			Logger::log(Logger::ERROR,"got error for checking whether openfde installed, maybe fde-dbus service not running");
 			return ;
 		}

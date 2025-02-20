@@ -55,7 +55,7 @@ func (s *OpenFDEService) Construct() (string, *dbus.Error) {
 		}
 		return fmt.Sprintf("script else is not exist %v", err),nil
 	}
-	cmd := exec.Command("/tmp/get-openfde.sh")
+	cmd := exec.Command("bash","/tmp/get-openfde.sh")
 	// 执行脚本并捕获输出
 	_, err = cmd.Output()
 	if err != nil {
