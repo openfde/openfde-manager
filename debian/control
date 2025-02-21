@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.6
 Homepage: https://openfde.com
 
-Package: com.openfde.openfdeui
+Package: com.openfde.manager
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: A graphic user interface to manager OpenFDE.

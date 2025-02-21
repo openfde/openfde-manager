@@ -1,10 +1,10 @@
 [Desktop Entry]
 Comment=OpenFDE
 Exec=/opt/apps/com.openfde/usr/bin/openfde-ui
-Name=OpenFDE-ui
-Name[zh_CN]=OpenFDE-ui
+Name=OpenFDE-Manager
+Name[zh_CN]=OpenFDE-Manager
 StartupNotify=false
 Terminal=false
 Type=Application
-Categories=Desktop
-Icon=/usr/share/icons/hicolor/96x96/apps/openfde-ui.png
+Categories=Utility;
+Icon=/usr/share/icons/hicolor/96x96/apps/openfde-manager.png
