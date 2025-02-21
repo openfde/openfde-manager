@@ -1,0 +1,8 @@
+#!/bin/bash
+
+appfile_dir="/opt/apps/com.openfde.manager/files"
+
+cp ${appfile_dir}/openfde-dbus.service /lib/systemd/system/
+systemctl daemon-reload
+systemctl enable openfde-dbus.service
+systemctl start openfde-dbus.service &
