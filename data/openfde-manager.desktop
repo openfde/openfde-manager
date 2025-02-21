@@ -1,6 +1,6 @@
 [Desktop Entry]
 Comment=OpenFDE
-Exec=/opt/apps/com.openfde/usr/bin/openfde-ui
+Exec=/opt/apps/com.openfde.manager/usr/bin/openfde-manager
 Name=OpenFDE-Manager
 Name[zh_CN]=OpenFDE-Manager
 StartupNotify=false

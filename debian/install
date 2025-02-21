@@ -1,4 +1,4 @@
-src/openfde-ui /opt/apps/com.openfde.manager/usr/bin/
+src/openfde-manager /opt/apps/com.openfde.manager/usr/bin/
 service/openfde-dbus.service /opt/apps/com.openfde.manager/files
 service/openfde.service /opt/apps/com.openfde.manager/usr/bin/
 data/openfde-manager.desktop /usr/share/applications/

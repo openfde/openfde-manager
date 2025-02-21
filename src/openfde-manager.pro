@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = openfde-ui
+TARGET = openfde-manager
 INCLUDEPATH += .
 QT += widgets network dbus
 
@@ -21,4 +21,4 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # Input
 HEADERS += mainwindow.h shapeButton.h download.h start_worker.h install_worker.h
 SOURCES += main.cpp mainwindow.cpp shapeButton.cpp download.cpp 
-RESOURCES += openfde-ui.qrc
+RESOURCES += openfde-manager.qrc
