@@ -359,7 +359,6 @@ distdir: FORCE
 	$(COPY_FILE) --parents /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.h shapeButton.h download.h start_worker.h install_worker.h $(DISTDIR)/
 	$(COPY_FILE) --parents main.cpp mainwindow.cpp shapeButton.cpp download.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents translations/language_en.ts translations/language_zh.ts $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -391,7 +390,8 @@ qrc_openfde-ui.cpp: openfde-ui.qrc \
 		images/openfde_icon.png \
 		images/openfde.png \
 		images/settings.png \
-		images/minimize.png
+		images/minimize.png \
+		translations/language_en.qm
 	/usr/lib/qt5/bin/rcc -name openfde-ui openfde-ui.qrc -o qrc_openfde-ui.cpp
 
 compiler_moc_predefs_make_all: moc_predefs.h

@@ -13,16 +13,26 @@ int main(int argc, char *argv[])
     w.setWindowIcon(QIcon(":/images/openfde_icon.png"));
     w.show();
 
-    QString language = "zh";
+    
+    QString lang = qgetenv("LANG");
+    if (lang.isEmpty()) {
+      lang = QLocale::system().name();
+    }
+    lang = lang.left(2).toLower();
+
+    QString qm = ":/translations/language_en.qm";
+    if (lang != "zh") {
+	qm = ":/translations/language_zh.qm";
+    }
     QTranslator translator;
-    if (!QFile::exists("translations/language_en.qm")){
-	    Logger::log(Logger::ERROR,"en.qm not exist");
+    if (!QFile::exists(qm)){
+	    Logger::log(Logger::ERROR,"qm not exist");
 	    return 0; 
     }
-    if (translator.load("translations/language_en.qm")) {
+    if (translator.load(qm)) {
 	    a.installTranslator(&translator);
     }else {
-	    Logger::log(Logger::ERROR,"hell");
+	    Logger::log(Logger::ERROR,"qm load failed");
 	    return 0;
     }
 

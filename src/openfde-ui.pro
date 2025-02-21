@@ -22,5 +22,3 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += mainwindow.h shapeButton.h download.h start_worker.h install_worker.h
 SOURCES += main.cpp mainwindow.cpp shapeButton.cpp download.cpp 
 RESOURCES += openfde-ui.qrc
-TRANSLATIONS += translations/language_en.ts \
-		translations/language_zh.ts

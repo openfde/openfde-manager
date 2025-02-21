@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "dbus.h"
-#include <QProgressDialog>
+#include <QCheckBox>
 #include "logger.h"
 #include <unistd.h>
 #include <QRegularExpression>
@@ -48,14 +48,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     QFile fdeUtils("/usr/bin/fde_utils");
     if (fdeUtils.exists()){
-		QProcess *process = new QProcess();
-		process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
-		process->waitForFinished(-1);
-		//获取waitForFinished返回值
-		int exitCode = process->exitCode();
-		if (exitCode == 1) {
-			btn->toggleToStatus(button_start_status);
-		}
+	QProcess *process = new QProcess();
+	process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
+	process->waitForFinished(-1);
+	//获取waitForFinished返回值
+	int exitCode = process->exitCode();
+	if (exitCode == 1) {
+		btn->toggleToStatus(button_start_status);
+	}
     }
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
@@ -200,9 +200,15 @@ void MainWindow::createTitleBar()
 							   //
     QHBoxLayout *layout = new QHBoxLayout(titleBar);
     layout->setContentsMargins(5, 0, 5, 0); // 设置布局边距
+	layout->setSpacing(5);
 
+	layout->setAlignment(Qt::AlignLeft); // Align widgets to the left
+    QLabel *iconLabel = new QLabel(titleBar);
+    QPixmap icon(":/images/openfde_icon.png");
+    iconLabel->setPixmap(icon.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	layout->addWidget(iconLabel);
     // 添加标题
-    QLabel *titleLabel = new QLabel("OpenFDE", titleBar); // 创建标题标签
+    QLabel *titleLabel = new QLabel("OpenFDE Manager", titleBar); // 创建标题标签
     titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #333333;"); // 设置标题样式
     //titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #808080;"); // 设置标题样式
     layout->addWidget(titleLabel); // 将标题添加到布局左侧
@@ -211,24 +217,65 @@ void MainWindow::createTitleBar()
     settingsButton = new QPushButton(titleBar);
     settingsButton->setGeometry(this->width() - 120, 5, 20, 20); // 设置按钮位置和大小
     settingsButton->setIcon(QIcon(":/images/settings.png")); // 使用资源文件中的图标
-    settingsButton->setIconSize(QSize(16, 16)); // 设置图标大小
-    settingsButton->setStyleSheet("border: none; background-color: transparent;"); // 设置按钮样式
+    settingsButton->setIconSize(QSize(20, 20)); // 设置图标
     connect(settingsButton, &QPushButton::clicked, this, &MainWindow::onSettingsButtonClicked);
+    settingsButton->setToolTip(tr("Settings"));
+    settingsButton->setStyleSheet(
+		"QPushButton {"
+		"    border: none;"
+		"    background-color: transparent;"
+		"}"
+		"QPushButton:hover {"
+		"    background-color: rgba(0, 0, 0, 0.1);"
+		"}"
+		"QPushButton:pressed {"
+		"    background-color: rgba(0, 0, 0, 0.2);"
+		"}"
+		"QToolTip { border: none; padding: 1px; }"
+	);
 
     // 创建最小化按钮
     minimizeButton = new QPushButton(titleBar);
     minimizeButton->setGeometry(this->width() - 80, 5, 20, 20); // 设置按钮位置和大小
     minimizeButton->setIcon(QIcon(":/images/minimize.png")); // 使用资源文件中的图标
-    minimizeButton->setIconSize(QSize(16, 16)); // 设置图标大小
-    minimizeButton->setStyleSheet("border: none; background-color: transparent;"); // 设置按钮样式
+    minimizeButton->setIconSize(QSize(20,20)); // 设置图标大小
+    minimizeButton->setToolTip(tr("Hidden Window"));
+    //minimizeButton->setToolTip(tr("隐藏窗口"));
+    minimizeButton->setStyleSheet(
+		"QPushButton {"
+		"    border: none;"
+		"    background-color: transparent;"
+		"}"
+		"QPushButton:hover {"
+		"    background-color: rgba(0, 0, 0, 0.1);"
+		"}"
+		"QPushButton:pressed {"
+		"    background-color: rgba(0, 0, 0, 0.2);"
+		"}"
+		"QToolTip { border: none; padding: 1px; }"
+	);
     connect(minimizeButton, &QPushButton::clicked, this, &MainWindow::onMinimizeButtonClicked);
 
     // 创建关闭按钮
     closeButton = new QPushButton(titleBar);
     closeButton->setGeometry(this->width() - 40, 5, 20, 20); // 设置按钮位置和大小
     closeButton->setIcon(QIcon(":/images/close.png")); // 使用资源文件中的图标
-    closeButton->setIconSize(QSize(16, 16)); // 设置图标大小
-    closeButton->setStyleSheet("border: none; background-color: transparent;"); // 设置按钮样式
+    closeButton->setIconSize(QSize(20,20)); // 设置图标大小
+    //closeButton->setToolTip(tr("关闭管理程序"));
+    closeButton->setToolTip(tr("Close Manager"));
+    closeButton->setStyleSheet(
+		"QPushButton {"
+		"    border: none;"
+		"    background-color: transparent;"
+		"}"
+		"QPushButton:hover {"
+		"    background-color: rgba(0, 0, 0, 0.1);"
+		"}"
+		"QPushButton:pressed {"
+		"    background-color: rgba(0, 0, 0, 0.2);"
+		"}"
+		"QToolTip { border: none; padding: 1px; }"
+	);
     connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseButtonClicked);
 }
 
@@ -236,21 +283,97 @@ void MainWindow::createTitleBar()
 void MainWindow::onSettingsButtonClicked()
 {
     //获取版本信息
-    QString versionFDE = dbus_utils::tools("version_fde");
-    QString ctrlFDE = dbus_utils::tools("version_ctrl");
-    
-    //创建无图标的消息框
-    QMessageBox msgBox(this);
-    msgBox.setFixedSize(100,50);
-    msgBox.setWindowTitle("版本信息");
-    msgBox.setText("FDE版本：" + versionFDE + "\n控制程序版本：" + ctrlFDE);
-    msgBox.setIcon(QMessageBox::NoIcon);
-    msgBox.exec();
+	QString versionFDE = dbus_utils::tools("status");
+	if (versionFDE != "installed\n") 
+		versionFDE = "uninstalled";
+	else{
+		versionFDE = dbus_utils::tools("version_fde");
+	}
+	QString ctrlFDE = dbus_utils::tools("version_ctrl");
+	// Filter out newline characters from version strings
+	versionFDE.replace("\n", "");
+	ctrlFDE.replace("\n", "");
+	// Create widget for version info
+	
+	QDialog *versionWidget = new QDialog(this);
+	//QWidget *versionWidget = new QWidget();
+	versionWidget->setFixedSize(300, 150);
+	versionWidget->setWindowIcon(QIcon(":/images/settings.png"));
+
+	QVBoxLayout *vLayout = new QVBoxLayout(versionWidget);
+	versionWidget->setWindowTitle(tr("系统设置"));
+
+	//versionWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+	versionWidget->setModal(true);
+	// Center the dialog relative to parent window
+	versionWidget->move(
+		this->geometry().center().x() - versionWidget->width()/2,
+		this->geometry().center().y() - versionWidget->height()/2
+	);
+
+	// FDE Version
+	QLabel *fdeLabel = new QLabel(tr("OpenFDE版本")+":", versionWidget);
+	QLabel *fdeValue = new QLabel(versionFDE, versionWidget);
+	QHBoxLayout *fdeLayout = new QHBoxLayout();
+	fdeLayout->addWidget(fdeLabel);
+	fdeLayout->addWidget(fdeValue);
+	fdeLayout->setAlignment(Qt::AlignCenter); // Align widgets to the left
+	fdeLayout->setSpacing(10); // Add some spacing between widgets
+
+	// Control Version
+	QLabel *ctrlLabel = new QLabel(tr("控制程序版本")+":",versionWidget);
+	QLabel *ctrlValue = new QLabel(ctrlFDE,versionWidget);
+	QHBoxLayout *ctrlLayout = new QHBoxLayout();
+	ctrlLayout->addWidget(ctrlLabel);
+	ctrlLayout->addWidget(ctrlValue);
+	ctrlLayout->setAlignment(Qt::AlignCenter); // Align widgets to the left
+	ctrlLayout->setSpacing(10); // Add some spacing between widgets
+
+	// Update button
+	QCheckBox *deleteDataCheckbox = new QCheckBox(tr("卸载时一起删除数据"), versionWidget);
+	QPushButton *updateBtn = new QPushButton(tr("卸载"), versionWidget);
+	QHBoxLayout *uninstallLayout = new QHBoxLayout();
+	uninstallLayout->addWidget(deleteDataCheckbox);
+	uninstallLayout->addWidget(updateBtn);
+
+	connect(updateBtn, &QPushButton::clicked, this,[this, deleteDataCheckbox]()  {
+			QMessageBox* msgBox = new QMessageBox(this);
+			msgBox->setIcon(QMessageBox::Warning);
+			msgBox->setText(tr("OpenFDE未安装"));
+			msgBox->setStandardButtons(QMessageBox::NoButton);
+			msgBox->show();
+			QTimer::singleShot(1000, msgBox, &QMessageBox::close);
+			return;
+		QMessageBox::StandardButton reply = QMessageBox::question(this,
+			tr("确认卸载"),
+			tr("确定要卸载OpenFDE吗？"),
+			QMessageBox::Yes | QMessageBox::No);
+		if (reply == QMessageBox::Yes) {
+		bool deleteData = deleteDataCheckbox->isChecked();
+			if (deleteData) {
+			qDebug()<<"delete data with uninstall";
+			//	dbus_utils::tools("clear");
+			}
+			QString ret = dbus_utils::tools("status");
+			if (ret != "installed\n"){
+				
+			}
+
+		qDebug()<<"uninstall";
+			//dbus_utils::tools("uninstall");
+		}
+	});
+
+	vLayout->addLayout(fdeLayout);
+	vLayout->addLayout(ctrlLayout);
+	vLayout->addLayout(uninstallLayout);
+	versionWidget->setLayout(vLayout);
+	versionWidget->show();
 }
 
 void MainWindow::onMinimizeButtonClicked()
 {
-    this->showMinimized(); // 最小化窗口
+    this->hide();
 }
 
 void MainWindow::onCloseButtonClicked()
@@ -276,7 +399,7 @@ int MainWindow::initProgress()
     // 将 Worker 移动到子线程
     installWorker->moveToThread(workThread);
     // 创建状态标签
-    statusLabel = new QLabel("准备中...", this);
+    statusLabel = new QLabel(tr("准备中..."), this);
     statusLabel->setAlignment(Qt::AlignCenter);
     statusLabel->setStyleSheet(
 		"QLabel {"
@@ -305,7 +428,7 @@ int MainWindow::initProgress()
     progressBar->setValue(0);      // 初始值为 0
     progressBar->setTextVisible(false);
 // 创建取消按钮
-    cancelButton = new QPushButton("取消", this);
+    cancelButton = new QPushButton(tr("取消"), this);
     cancelButton->setStyleSheet(
 		"QPushButton {"
 		"   background-color: #E0E0E0;"
@@ -361,14 +484,6 @@ void MainWindow::cancelInstalling(){
 	"确定要取消下载吗？",
 	QMessageBox::Yes | QMessageBox::No);
 	if (reply == QMessageBox::Yes) {
-		/*progress = new QProgressDialog("取消中...", "", 0, 0,this);
-		progress->setWindowModality(Qt::WindowModal);
-		progress->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-		progress->setCancelButton(nullptr);
-		progress->resize(100,50);
-		progress->move(160,100);
-		progress->show();
-		*/
 		// 执行取消脚本
 		QString output = dbus_utils::tools("stop");
 		//progress->close();
@@ -419,18 +534,18 @@ void MainWindow::updateProgress()
 	QString status;
 	currentProgress = number;
 	if (action ==  "installing") {
-		status = "安装中... ";
+		status = tr("安装中...");
 		installing=true;
 	}else if (action == "extracting") {
 		extracting=true;
-		status="解压中... " ;
+		status=tr("解压中...");
 	}else if (action == "downloading"){
 		downloading = true;
-		status="下载中... ";
+		status=tr("下载中...");
 	}else{
 		if (!installing && !extracting && !downloading){//fix the status reversed by an unexpected status
 			currentProgress = 0 ;
-			status="下载中... ";
+			status=tr("下载中...");
 		}
 	}
 	statusLabel->setText(status);

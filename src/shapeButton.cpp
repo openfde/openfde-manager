@@ -12,6 +12,16 @@ CircleWidgetWithButton::CircleWidgetWithButton(QWidget *parent):  QWidget(parent
 
     // 连接按钮的点击信号到槽函数
     connect(shapeButton, &QPushButton::clicked, this, &CircleWidgetWithButton::toggleButtonShape);
+       // Add hover event handler
+    shapeButton->setMouseTracking(true);
+    shapeButton->setStyleSheet(
+		    "QPushButton {"
+		    " background-color: skyblue;"
+		    "}"
+		    "QToolTip {"
+		    " background-color: white; border: none; padding: 1px; }"
+		    );
+    shapeButton->setToolTip(tr("Start"));
 }
 
 void CircleWidgetWithButton::toggleToStatus(QString status, bool send){
@@ -61,8 +71,6 @@ void CircleWidgetWithButton::updateButtonShape(bool withAction) {
     }
     mutex.unlock();
     shapeButton->setMask(mask);
-//shapeButton->setStyleSheet("background-color: skyblue; border: none;");
-    shapeButton->setStyleSheet("background-color: skyblue;");
     shapeButton->update(); // 触发按钮重绘
 }
 

@@ -2,9 +2,11 @@
 <!DOCTYPE TS>
 <TS version="2.1">
 <context>
-    <name>Translate</name>
+    <name>MainWindow</name>
     <message>
         <source>FDE dbus服务未启动</source>
+        <translation type="unfinished"></translation>
+        <source>设置</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
