@@ -1,3 +1,4 @@
 *.o
 openfde-ui
 .qmake.stash
+openfde.service

@@ -85,7 +85,7 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 			}
 			//construct /usr/bin/get_fde.sh
 			QString retS = dbus_utils::construct();
-			if (retS == dbus_errorS) {
+			if (retS == dbus_utils::errorS) {
 				// 创建状态标签
 				QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
     				btn->toggleToStatus(button_stop_status);
@@ -157,7 +157,7 @@ void MainWindow::showImage(bool immediately) {
 			// 加载图片
 			Logger::log(Logger::INFO," fde is stared for screenshoting");
 			QString retScreen = dbus_utils::utils("screenshot");
-			if (retScreen == dbus_errorS) {
+			if (retScreen == dbus_utils::errorS) {
 				imageLabel->setText("Error: openFDE Service not started. ");
 				return ;
 			}
@@ -219,7 +219,6 @@ void MainWindow::createTitleBar()
     settingsButton->setIcon(QIcon(":/images/settings.png")); // 使用资源文件中的图标
     settingsButton->setIconSize(QSize(20, 20)); // 设置图标
     connect(settingsButton, &QPushButton::clicked, this, &MainWindow::onSettingsButtonClicked);
-    settingsButton->setToolTip(tr("Settings"));
     settingsButton->setStyleSheet(
 		"QPushButton {"
 		"    border: none;"
@@ -231,7 +230,6 @@ void MainWindow::createTitleBar()
 		"QPushButton:pressed {"
 		"    background-color: rgba(0, 0, 0, 0.2);"
 		"}"
-		"QToolTip { border: none; padding: 1px; }"
 	);
 
     // 创建最小化按钮
@@ -239,8 +237,6 @@ void MainWindow::createTitleBar()
     minimizeButton->setGeometry(this->width() - 80, 5, 20, 20); // 设置按钮位置和大小
     minimizeButton->setIcon(QIcon(":/images/minimize.png")); // 使用资源文件中的图标
     minimizeButton->setIconSize(QSize(20,20)); // 设置图标大小
-    minimizeButton->setToolTip(tr("Hidden Window"));
-    //minimizeButton->setToolTip(tr("隐藏窗口"));
     minimizeButton->setStyleSheet(
 		"QPushButton {"
 		"    border: none;"
@@ -252,7 +248,6 @@ void MainWindow::createTitleBar()
 		"QPushButton:pressed {"
 		"    background-color: rgba(0, 0, 0, 0.2);"
 		"}"
-		"QToolTip { border: none; padding: 1px; }"
 	);
     connect(minimizeButton, &QPushButton::clicked, this, &MainWindow::onMinimizeButtonClicked);
 
@@ -261,8 +256,6 @@ void MainWindow::createTitleBar()
     closeButton->setGeometry(this->width() - 40, 5, 20, 20); // 设置按钮位置和大小
     closeButton->setIcon(QIcon(":/images/close.png")); // 使用资源文件中的图标
     closeButton->setIconSize(QSize(20,20)); // 设置图标大小
-    //closeButton->setToolTip(tr("关闭管理程序"));
-    closeButton->setToolTip(tr("Close Manager"));
     closeButton->setStyleSheet(
 		"QPushButton {"
 		"    border: none;"
@@ -274,11 +267,17 @@ void MainWindow::createTitleBar()
 		"QPushButton:pressed {"
 		"    background-color: rgba(0, 0, 0, 0.2);"
 		"}"
-		"QToolTip { border: none; padding: 1px; }"
 	);
     connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseButtonClicked);
 }
 
+void MainWindow::onInstallWorkerFinishedError(QString err)
+{
+	QMessageBox::critical(this, tr("Error"), err, QMessageBox::Ok);
+	ceaseInstalling();
+	btn->toggleToStatus(button_stop_status);
+}
+		
 
 void MainWindow::onSettingsButtonClicked()
 {
@@ -452,6 +451,7 @@ int MainWindow::initProgress()
     // 连接 Worker 的信号和槽
     QObject::connect(workThread, &QThread::started, installWorker, &Worker::doInstallWork);
     QObject::connect(installWorker, &Worker::workFinished, workThread, &QThread::quit);
+    QObject::connect(installWorker, &Worker::workFinishedErr, this, &MainWindow::onInstallWorkerFinishedError);
     workThread->start();
 
     // 创建布局

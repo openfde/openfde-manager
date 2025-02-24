@@ -18,10 +18,7 @@ CircleWidgetWithButton::CircleWidgetWithButton(QWidget *parent):  QWidget(parent
 		    "QPushButton {"
 		    " background-color: skyblue;"
 		    "}"
-		    "QToolTip {"
-		    " background-color: white; border: none; padding: 1px; }"
 		    );
-    shapeButton->setToolTip(tr("Start"));
 }
 
 void CircleWidgetWithButton::toggleToStatus(QString status, bool send){

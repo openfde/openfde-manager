@@ -33,8 +33,8 @@ func (s *OpenFDEService) Tools(command string) (string, *dbus.Error) {
 	// 执行脚本并捕获输出
 	out, err := cmd.Output()
 	if err != nil {
-        	fmt.Printf("error in tools %v \n",err)
-		return fmt.Sprintf("Failed to execute get_fde.sh: %v", err),nil
+        	fmt.Printf("error in tools " + command + " %v \n",err)
+		return fmt.Sprintf("FailedExitCode: %d",cmd.ProcessState.ExitCode()),nil
 	}
         fmt.Printf("in tools after exec  "+ command +"\n")
 	if command == "status" || command == "version_fde" || command == "version_ctrl" {

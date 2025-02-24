@@ -55,7 +55,8 @@ OBJECTS_DIR   = ./
 SOURCES       = main.cpp \
 		mainwindow.cpp \
 		shapeButton.cpp \
-		download.cpp qrc_openfde-manager.cpp \
+		download.cpp \
+		dbus.cpp qrc_openfde-manager.cpp \
 		moc_mainwindow.cpp \
 		moc_shapeButton.cpp \
 		moc_download.cpp \
@@ -65,6 +66,7 @@ OBJECTS       = main.o \
 		mainwindow.o \
 		shapeButton.o \
 		download.o \
+		dbus.o \
 		qrc_openfde-manager.o \
 		moc_mainwindow.o \
 		moc_shapeButton.o \
@@ -160,7 +162,8 @@ DIST          = /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		install_worker.h main.cpp \
 		mainwindow.cpp \
 		shapeButton.cpp \
-		download.cpp
+		download.cpp \
+		dbus.cpp
 QMAKE_TARGET  = openfde-manager
 DESTDIR       = 
 TARGET        = openfde-manager
@@ -358,7 +361,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents openfde-manager.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.h shapeButton.h download.h start_worker.h install_worker.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp mainwindow.cpp shapeButton.cpp download.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp mainwindow.cpp shapeButton.cpp download.cpp dbus.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -481,6 +484,10 @@ shapeButton.o: shapeButton.cpp shapeButton.h \
 download.o: download.cpp download.h \
 		logger.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o download.o download.cpp
+
+dbus.o: dbus.cpp dbus.h \
+		logger.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dbus.o dbus.cpp
 
 qrc_openfde-manager.o: qrc_openfde-manager.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_openfde-manager.o qrc_openfde-manager.cpp

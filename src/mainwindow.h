@@ -34,6 +34,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void onInstallWorkerFinishedError(QString err);
     void onSettingsButtonClicked();
     void onMinimizeButtonClicked();
     void onCloseButtonClicked();
