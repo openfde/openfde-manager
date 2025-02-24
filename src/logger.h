@@ -30,7 +30,7 @@ public:
         std::cout << logMessage;
 
         // Write to file
-        std::ofstream logFile("application.log", std::ios::app);
+        std::ofstream logFile("/opt/apps/com.openfde.manager/logs/application.log", std::ios::app);
         if (logFile.is_open()) {
             logFile << logMessage;
             logFile.close();

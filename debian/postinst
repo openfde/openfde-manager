@@ -6,3 +6,5 @@ cp ${appfile_dir}/openfde-dbus.service /lib/systemd/system/
 systemctl daemon-reload
 systemctl enable openfde-dbus.service
 systemctl start openfde-dbus.service &
+mkdir /opt/apps/com.openfde.manager/logs -p
+chmod a+wr /opt/apps/com.openfde.manager/logs
