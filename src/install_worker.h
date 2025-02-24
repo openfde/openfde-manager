@@ -22,16 +22,8 @@ public slots:
 	Logger::log(Logger::INFO,"start to run installing worker");
 	QString retStatus = dbus_utils::tools("install");
 	if ( retStatus.contains(dbus_utils::errorS)){
-		qDebug()<<"system error";
-		QStringList parts = retStatus.split(":");
-		QString err;
-		if (parts.size() >= 2) {
-			err = parts[1];
-		}else{
-			err = dbus_utils::ErrSystem;
-		}
-		Logger::log(Logger::ERROR,"installing procedure occur error"+ err.toStdString());
-		emit workFinishedErr(err);
+		Logger::log(Logger::ERROR,"installing procedure occur error"+ retStatus.toStdString());
+		emit workFinishedErr(retStatus);
 		return ;
 	}
 	Logger::log(Logger::INFO,"installing procedure worker end");

@@ -273,8 +273,9 @@ void MainWindow::createTitleBar()
 
 void MainWindow::onInstallWorkerFinishedError(QString err)
 {
-	QMessageBox::critical(this, tr("Error"), err, QMessageBox::Ok);
+	Logger::log(Logger::DEBUG,"on install worker finished error" + err.toStdString());
 	ceaseInstalling();
+	QMessageBox::critical(this, "Error",tr(dbus_utils::parseError(err)),  QMessageBox::Ok);
 	btn->toggleToStatus(button_stop_status);
 }
 		

@@ -18,7 +18,6 @@ class dbus_utils
 {
 	
 public:
-	QString parseError(QString);
 	static const QString errorS; 
 	static const QString ErrService; 
 	static const QString ErrSystem;  
@@ -33,6 +32,8 @@ public:
 	static const QString ErrPidMaxOver;
 	static const QString ErrNetworkError;
 	static const QString ErrSystemApt100;
+
+	static const char* parseError(QString);
 	static QString construct(){
 		// 创建一个方法调用消息
 		QDBusMessage message = QDBusMessage::createMethodCall(

@@ -39,12 +39,10 @@ int main(int argc, char *argv[])
       // Create system tray icon
     QSystemTrayIcon *trayIcon = new QSystemTrayIcon(QIcon(":/images/openfde_icon.png"), &w);
     QMenu *trayMenu = new QMenu(&w);
-    QAction *minimizeAction = trayMenu->addAction("Minimize");
-    QAction *restoreAction = trayMenu->addAction("Restore");
-    QAction *quitAction = trayMenu->addAction("Quit");
+    QAction *restoreAction = trayMenu->addAction(QObject::tr("恢复窗口"));
+    QAction *quitAction = trayMenu->addAction(QObject::tr("退出"));
 
     // Connect actions
-    QObject::connect(minimizeAction, &QAction::triggered, &w, &QWidget::hide);
     QObject::connect(restoreAction, &QAction::triggered, &w, &QWidget::showNormal);
     QObject::connect(quitAction, &QAction::triggered, &a, &QApplication::quit);
 

@@ -80,16 +80,64 @@
         <translation type="finished">Start OpenFDE</translation>
     </message>
     <message>
-        <source>start</source>
-        <translation type="finished">Start OpenFDE</translation>
+        <source>不支持的GPU</source>
+        <translation type="finished">The GPU is not support</translation>
+    </message>
+    <message>
+        <source>不支持的内核</source>
+        <translation type="finished">The Kernel is not support</translation>
+    </message>
+    <message>
+        <source>系统错误</source>
+        <translation type="finished">System Error</translation>
+    </message>
+    <message>
+        <source>系统环境错误</source>
+        <translation type="finished">System Error</translation>
+    </message>
+    <message>
+        <source>您选择退出安装</source>
+        <translation type="finished">You choosed to exit</translation>
+    </message>
+    <message>
+        <source>安装Binder失败</source>
+        <translation type="finished">Install Binder failed</translation>
+    </message>
+    <message>
+        <source>不支持的参数</source>
+        <translation type="finished">Unsupport args</translation>
+    </message>
+    <message>
+        <source>请先关闭OpenFDE</source>
+        <translation type="finished">Please stop OpenFDE first</translation>
+    </message>
+    <message>
+        <source>未安装curl命令</source>
+        <translation type="finished">Please install curl</translation>
+    </message>
+    <message>
+        <source>Pid Max超过65535</source>
+        <translation type="finished">Pid Max great than 65535</translation>
+    </message>
+    <message>
+        <source>网络错误</source>
+        <translation type="finished">Network error</translation>
+    </message>
+    <message>
+        <source>apt源错误</source>
+        <translation type="finished">apt failure</translation>
     </message>
 </context>
 
 <context>
-    <name>CircleWidgetWithButton</name>
+    <name>QObject</name>
     <message>
-        <source>start1</source>
-        <translation type="finished">Start OpenFDE</translation>
+        <source>恢复窗口</source>
+        <translation type="finished">Restore window</translation>
+    </message>
+    <message>
+        <source>退出</source>
+        <translation type="finished">Quit</translation>
     </message>
 </context>
 </TS>
