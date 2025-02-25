@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "dbus.h"
+#include <QDir>
 #include <QCheckBox>
 #include "logger.h"
 #include <unistd.h>
@@ -283,13 +284,13 @@ void MainWindow::onInstallWorkerFinishedError(QString err)
 void MainWindow::onSettingsButtonClicked()
 {
     //获取版本信息
-	QString versionFDE = dbus_utils::tools("status");
-	if (versionFDE != "installed\n") 
+	QString versionFDE = dbus_utils::tools(dbus_utils::methodStatus);
+	if (versionFDE != dbus_utils::openfdeStatusInstalled) 
 		versionFDE = "uninstalled";
 	else{
-		versionFDE = dbus_utils::tools("version_fde");
+		versionFDE = dbus_utils::tools(dbus_utils::methodVersionFDE);
 	}
-	QString ctrlFDE = dbus_utils::tools("version_ctrl");
+	QString ctrlFDE = dbus_utils::tools(dbus_utils::methodVersionCtrl);
 	// Filter out newline characters from version strings
 	versionFDE.replace("\n", "");
 	ctrlFDE.replace("\n", "");
@@ -337,6 +338,8 @@ void MainWindow::onSettingsButtonClicked()
 	uninstallLayout->addWidget(updateBtn);
 
 	connect(updateBtn, &QPushButton::clicked, this,[this, deleteDataCheckbox]()  {
+		QString ret = dbus_utils::tools(dbus_utils::methodStatus);
+		if ( ret != dbus_utils::openfdeStatusInstalled ) {
 			QMessageBox* msgBox = new QMessageBox(this);
 			msgBox->setIcon(QMessageBox::Warning);
 			msgBox->setText(tr("OpenFDE未安装"));
@@ -344,23 +347,28 @@ void MainWindow::onSettingsButtonClicked()
 			msgBox->show();
 			QTimer::singleShot(1000, msgBox, &QMessageBox::close);
 			return;
+		}
 		QMessageBox::StandardButton reply = QMessageBox::question(this,
-			tr("确认卸载"),
-			tr("确定要卸载OpenFDE吗？"),
-			QMessageBox::Yes | QMessageBox::No);
+                       tr("确认卸载"),
+                       tr("确定要卸载OpenFDE吗？"),
+                       QMessageBox::Yes | QMessageBox::No);
 		if (reply == QMessageBox::Yes) {
-		bool deleteData = deleteDataCheckbox->isChecked();
+			QString output = dbus_utils::tools(dbus_utils::methodUninstall);
+			if (output.contains(dbus_utils::errorS)) {
+				QMessageBox::critical(this, tr("Error"), tr(dbus_utils::parseError(output)), QMessageBox::Ok);
+				return;
+			}
+			bool deleteData = deleteDataCheckbox->isChecked();
 			if (deleteData) {
-			qDebug()<<"delete data with uninstall";
-			//	dbus_utils::tools("clear");
+				QString homeDir = QDir::homePath();
+				dbus_utils::clear(homeDir);
 			}
-			QString ret = dbus_utils::tools("status");
-			if (ret != "installed\n"){
-				
-			}
-
-		qDebug()<<"uninstall";
-			//dbus_utils::tools("uninstall");
+			QMessageBox* msgBox = new QMessageBox(this);
+			msgBox->setIcon(QMessageBox::Information);
+			msgBox->setText(tr("卸载成功"));
+			msgBox->setStandardButtons(QMessageBox::NoButton);
+			msgBox->show();
+			QTimer::singleShot(1000, msgBox, &QMessageBox::close);
 		}
 	});
 
@@ -384,7 +392,7 @@ void MainWindow::onCloseButtonClicked()
 
 int MainWindow::initProgress()
 {
-    QString output = dbus_utils::tools(dbus_methodStatus);
+    QString output = dbus_utils::tools(dbus_utils::methodStatus);
     if ( output == "error") {
         return -1;
     }else  if ( output == "installed\n"){
@@ -403,7 +411,7 @@ int MainWindow::initProgress()
     statusLabel->setAlignment(Qt::AlignCenter);
     statusLabel->setStyleSheet(
 		"QLabel {"
-		"    font-size: 14px;"
+		"    font-size: 12px;"
 		"    font-weight: bold;"
 		"    color: #1E90FF;"  
 		"}"
@@ -482,11 +490,11 @@ int MainWindow::initProgress()
 void MainWindow::cancelInstalling(){
 	QMessageBox::StandardButton reply = QMessageBox::question(this, 
 	"确认取消", 
-	"确定要取消下载吗？",
+	tr("确定要取消下载吗?"),
 	QMessageBox::Yes | QMessageBox::No);
 	if (reply == QMessageBox::Yes) {
 		// 执行取消脚本
-		QString output = dbus_utils::tools("stop");
+		QString output = dbus_utils::tools(dbus_utils::methodStop);
 		//progress->close();
 		// 清理界面
 		ceaseInstalling();
@@ -511,7 +519,7 @@ void MainWindow::ceaseInstalling() {
 
 void MainWindow::updateProgress()
 {
-	QString output = dbus_utils::tools("status");
+	QString output = dbus_utils::tools(dbus_utils::methodStatus);
 	QRegularExpression regex("^(\\w+)\\s(\\d+)$");
 	QRegularExpressionMatch match = regex.match(output);
 	QString action;
@@ -524,7 +532,7 @@ void MainWindow::updateProgress()
         	Logger::log( Logger::DEBUG,"No matching status found: " + output.toStdString());
 		if (output == "installed\n") {
         		Logger::log( Logger::DEBUG,"installed successfully");
-			statusLabel->setText("安装完成！");
+			statusLabel->setText(tr("安装完成!"));
 			currentProgress=100;
 			progressBar->setValue(currentProgress);
 			ceaseInstalling();

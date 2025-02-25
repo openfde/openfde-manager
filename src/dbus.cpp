@@ -2,20 +2,16 @@
 
 
 const QString dbus_utils::errorS = "dbus_error:";
+const QString dbus_utils::methodStatus = "status";
+const QString dbus_utils::methodInstall = "install";
+const QString dbus_utils::openfdeStatusInstalled = "installed\n";
+const QString dbus_utils::methodVersionFDE ="version_fde";
+const QString dbus_utils::methodVersionCtrl= "version_ctrl";
+const QString dbus_utils::methodStop ="stop";
+const QString dbus_utils::methodUninstall = "uninstall";
 
 const QString dbus_utils::ErrSystem = "1";
 const QString dbus_utils::ErrService = "-1";
-const QString ErrNotSupportGpu="2";
-const QString ErrNotSupportKernel="3";
-const QString ErrChooseToExitByUser="4";
-const QString ErrBinderInstallFailed="5";
-const QString ErrInvalidArgs="6";
-const QString ErrFDENotInstalled="7";
-const QString ErrStopNeedFirst="8";
-const QString ErrCurlNotInstalled="9";
-const QString ErrPidMaxOver="10";
-const QString ErrNetworkError="11";
-const QString ErrSystemApt100="100";
 
 
 const char * dbus_utils::parseError(QString errorS){
@@ -37,6 +33,7 @@ const char * dbus_utils::parseError(QString errorS){
 				case 10: return  "Pid Max超过65535";
 				case 11: return  "网络错误";
 				case 100: return  "apt源错误";
+				case 143: return  "已取消";
 			}
 		}
 	}

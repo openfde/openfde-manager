@@ -9,40 +9,27 @@
 #include <QString>
 
 
-static const QString dbus_methodStatus = "status";
-static const QString dbus_methodInstall = "install";
-static const QString dbus_openfdeStatusInstalled = "installed\n";
 
 
 class dbus_utils 
 {
 	
 public:
+	static const QString methodStatus;
+	static const QString methodInstall;
+	static const QString methodVersionFDE;
+	static const QString methodVersionCtrl;
+	static const QString methodStop;
+	static const QString methodUninstall;
+	static const QString openfdeStatusInstalled;
+
 	static const QString errorS; 
 	static const QString ErrService; 
 	static const QString ErrSystem;  
-	static const QString ErrNotSupportGpu; 
-	static const QString ErrNotSupportKernel;
-	static const QString ErrChooseToExitByUser;
-	static const QString ErrBinderInstallFailed;
-	static const QString ErrInvalidArgs;
-	static const QString ErrFDENotInstalled;
-	static const QString ErrStopNeedFirst;
-	static const QString ErrCurlNotInstalled;
-	static const QString ErrPidMaxOver;
-	static const QString ErrNetworkError;
-	static const QString ErrSystemApt100;
 
 	static const char* parseError(QString);
 	static QString construct(){
-		// 创建一个方法调用消息
-		QDBusMessage message = QDBusMessage::createMethodCall(
-		"com.openfde.Manager",          // 服务名
-		"/com/openfde/Manager",         // 对象路径
-		"openfde.service",          // 接口名
-		"Construct"                       // 方法名
-		 );
-
+		QDBusMessage message = connectDBus("Construct");
 
 		// 发送消息并获取回复
 		QDBusConnection bus = QDBusConnection::systemBus();  
@@ -56,19 +43,42 @@ public:
 		}
 		return reply.value();
 	}	
-
-	static QString utils(QString command ){
-		QDBusMessage message = QDBusMessage::createMethodCall(
+	static QDBusMessage connectDBus(const char* methodName){
+		return  QDBusMessage::createMethodCall(
 		"com.openfde.Manager",          // 服务名
 		"/com/openfde/Manager",         // 对象路径
 		"openfde.service",          // 接口名
-		"Utils"                           // 方法名
+		methodName                 // 方法名
 		);
+
+	}
+
+	static QString clear(QString homeDir ){
+		QDBusMessage message = connectDBus("Clear");
+		QList<QVariant> args;
+		args << QVariant::fromValue(QString(homeDir));
+		message.setArguments(args);
+
+		int timeout=4000;
+		QDBusConnection bus = QDBusConnection::systemBus();  
+		QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
+
+		if (reply.isValid()) {
+			Logger::log(Logger::INFO, QString("%1 call clear successful, reply value is %2").arg(homeDir).arg(reply.value()).toStdString());
+		} else {
+			Logger::log(Logger::ERROR, QString("%1 called clear failed : %2").arg(homeDir).arg(reply.error().message()).toStdString());
+			return errorS;
+		}
+		return reply.value();
+	}
+
+	static QString utils(QString command ){
+		QDBusMessage message = connectDBus("Utils");
 		QList<QVariant> args;
 		args << QVariant::fromValue(QString(command));
 		message.setArguments(args);
 
-		int timeout=360000;
+		int timeout=4000;
 		QDBusConnection bus = QDBusConnection::systemBus();  
 		QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
 
@@ -82,13 +92,7 @@ public:
 	}	
 		
 	static QString tools(QString command ){
-		QDBusMessage message = QDBusMessage::createMethodCall(
-		"com.openfde.Manager",          // 服务名
-		"/com/openfde/Manager",         // 对象路径
-		"openfde.service",          // 接口名
-		"Tools"                           // 方法名
-		);
-
+		QDBusMessage message = connectDBus("Tools");
 		QList<QVariant> args;
 		args << QVariant::fromValue(QString(command));
 		message.setArguments(args);

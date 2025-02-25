@@ -20,7 +20,7 @@ public slots:
     void doInstallWork() {
 	// 创建一个方法调用消息
 	Logger::log(Logger::INFO,"start to run installing worker");
-	QString retStatus = dbus_utils::tools("install");
+	QString retStatus = dbus_utils::tools(dbus_utils::methodInstall);
 	if ( retStatus.contains(dbus_utils::errorS)){
 		Logger::log(Logger::ERROR,"installing procedure occur error"+ retStatus.toStdString());
 		emit workFinishedErr(retStatus);

@@ -52,7 +52,7 @@
         <translation type="finished">Close OpenFDE Manager </translation>
     </message>
     <message>
-        <source>确定卸载</source>
+        <source>确认卸载</source>
         <translation type="finished">Confirm Uninstalling</translation>
     </message>
     <message>
@@ -126,6 +126,22 @@
     <message>
         <source>apt源错误</source>
         <translation type="finished">apt failure</translation>
+    </message>
+    <message>
+        <source>已取消</source>
+        <translation type="finished">Canceled</translation>
+    </message>
+    <message>
+        <source>确定要取消下载吗?</source>
+        <translation type="finished">Are you sure to cancel the downloading?</translation>
+    </message>
+    <message>
+        <source>卸载成功</source>
+        <translation type="finished">Uninstalled </translation>
+    </message>
+    <message>
+        <source>安装完成</source>
+        <translation type="finished">Installed </translation>
     </message>
 </context>
 

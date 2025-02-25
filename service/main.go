@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/godbus/dbus/v5"
 	"os/exec"
+	"path/filepath"
 	"os"
 	"io/ioutil"
 )
@@ -26,6 +27,16 @@ func (s *OpenFDEService) Utils(command string) (string, *dbus.Error) {
 		return "failed",nil
 	}
 	return "",nil
+}
+
+func (s *OpenFDEService) Clear(homeDir string) (string, *dbus.Error) {
+	targetDir := filepath.Join(homeDir, ".local", "share", "openfde")
+	err := os.RemoveAll(targetDir)
+	if err != nil {
+		return fmt.Sprintf("Failed to remove directory %s: %v", targetDir, err), nil
+	}
+
+	return "cleared", nil
 }
 
 func (s *OpenFDEService) Tools(command string) (string, *dbus.Error) {
@@ -54,6 +65,11 @@ func (s *OpenFDEService) Construct() (string, *dbus.Error) {
 			return fmt.Sprintf("script is not exist %v", err),&dbuserr
 		}
 		return fmt.Sprintf("script else is not exist %v", err),nil
+	}
+	// Execute sed command to modify the script
+	sedCmd := exec.Command("sed", "-i", "/key/s/phyvirt.//g", "/tmp/get-openfde.sh")
+	if err := sedCmd.Run(); err != nil {
+		return fmt.Sprintf("Failed to modify script with sed: %v", err), nil
 	}
 	cmd := exec.Command("bash","/tmp/get-openfde.sh")
 	// 执行脚本并捕获输出
