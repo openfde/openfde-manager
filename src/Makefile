@@ -56,7 +56,8 @@ SOURCES       = main.cpp \
 		mainwindow.cpp \
 		shapeButton.cpp \
 		download.cpp \
-		dbus.cpp qrc_openfde-manager.cpp \
+		dbus.cpp \
+		draggable_button.cpp qrc_openfde-manager.cpp \
 		moc_mainwindow.cpp \
 		moc_shapeButton.cpp \
 		moc_download.cpp \
@@ -67,6 +68,7 @@ OBJECTS       = main.o \
 		shapeButton.o \
 		download.o \
 		dbus.o \
+		draggable_button.o \
 		qrc_openfde-manager.o \
 		moc_mainwindow.o \
 		moc_shapeButton.o \
@@ -159,11 +161,13 @@ DIST          = /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		shapeButton.h \
 		download.h \
 		start_worker.h \
-		install_worker.h main.cpp \
+		install_worker.h \
+		draggable_button.h main.cpp \
 		mainwindow.cpp \
 		shapeButton.cpp \
 		download.cpp \
-		dbus.cpp
+		dbus.cpp \
+		draggable_button.cpp
 QMAKE_TARGET  = openfde-manager
 DESTDIR       = 
 TARGET        = openfde-manager
@@ -360,8 +364,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents openfde-manager.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents mainwindow.h shapeButton.h download.h start_worker.h install_worker.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp mainwindow.cpp shapeButton.cpp download.cpp dbus.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents mainwindow.h shapeButton.h download.h start_worker.h install_worker.h draggable_button.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp mainwindow.cpp shapeButton.cpp download.cpp dbus.cpp draggable_button.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -390,10 +394,15 @@ compiler_rcc_clean:
 qrc_openfde-manager.cpp: openfde-manager.qrc \
 		/usr/lib/qt5/bin/rcc \
 		images/close.png \
+		images/dualArrow.jpg \
+		images/line.png \
 		images/openfde_icon.png \
 		images/openfde.png \
+		images/right.png \
+		images/left.png \
 		images/settings.png \
 		images/minimize.png \
+		translations/language_zh.qm \
 		translations/language_en.qm
 	/usr/lib/qt5/bin/rcc -name openfde-manager openfde-manager.qrc -o qrc_openfde-manager.cpp
 
@@ -464,7 +473,8 @@ main.o: main.cpp mainwindow.h \
 		logger.h \
 		download.h \
 		install_worker.h \
-		dbus.h
+		dbus.h \
+		draggable_button.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 mainwindow.o: mainwindow.cpp mainwindow.h \
@@ -488,6 +498,9 @@ download.o: download.cpp download.h \
 dbus.o: dbus.cpp dbus.h \
 		logger.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dbus.o dbus.cpp
+
+draggable_button.o: draggable_button.cpp draggable_button.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o draggable_button.o draggable_button.cpp
 
 qrc_openfde-manager.o: qrc_openfde-manager.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_openfde-manager.o qrc_openfde-manager.cpp

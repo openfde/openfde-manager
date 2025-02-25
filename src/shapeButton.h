@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QWidget>
+#include <QTimer>
 #include <QPushButton>
 #include <QPainter>
 #include <QBitmap>
@@ -19,6 +20,9 @@ public:
     void toggleToStatus(QString status,bool send = false);
 signals:
     void sendMessage(const QString &message, bool withAction); // 定义信号
+
+public slots:
+    void receiveStatusUpdateMessage(const QString status);
 
 protected:
     void paintEvent(QPaintEvent *event) override {
@@ -43,5 +47,6 @@ private:
     bool isTriangle; // 当前形状是否为三角形
     void updateButtonShape(bool send = true);
     QMutex mutex;
+    QTimer *timer;
 };
 

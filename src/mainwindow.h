@@ -49,6 +49,7 @@ public slots:
 signals:
    // 自定义信号
     void imageSignal(bool immediately=false);
+    void sendStatusUpdateMessage(const QString status);
 
 protected:
 void mouseDoubleClickEvent(QMouseEvent *event) override {

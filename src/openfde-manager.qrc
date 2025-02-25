@@ -1,10 +1,15 @@
 <RCC>
     <qresource prefix="/">
+	<file>images/left.png</file>
+        <file>images/right.png</file>
+        <file>images/line.png</file>
+        <file>images/dualArrow.jpg</file>
         <file>images/settings.png</file>
         <file>images/minimize.png</file>
         <file>images/openfde_icon.png</file>
         <file>images/close.png</file>
         <file>images/openfde.png</file>
 	<file>translations/language_en.qm</file>
+	<file>translations/language_zh.qm</file>
     </qresource>
 </RCC>

@@ -61,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent)
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
     connect(btn, &CircleWidgetWithButton::sendMessage, this, &MainWindow::onMessageReceived,Qt::QueuedConnection);
+    //must use queuedConnection because failed start will toggle the button to stop, if use blockConnection, the shape of the button will not update correctly.
+    connect(this,&MainWindow::sendStatusUpdateMessage, btn,&CircleWidgetWithButton::receiveStatusUpdateMessage,Qt::QueuedConnection);
 }
 
 static const QString getOpenfdeUrl = "http://phyvirt.openfde.com/getopenfde/get-openfde.sh";
@@ -81,7 +83,8 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 			if ( ret != 0 ){ //download file failed
 			 // 创建状态标签
 				QMessageBox::critical(this,tr("Error"), tr("网络或磁盘故障"),QMessageBox::Ok);
-    				btn->toggleToStatus(button_stop_status);
+				sendStatusUpdateMessage(button_stop_status);
+    				//btn->toggleToStatus(button_stop_status);
 				return ;
 			}
 			//construct /usr/bin/get_fde.sh
@@ -89,7 +92,8 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 			if (retS == dbus_utils::errorS) {
 				// 创建状态标签
 				QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
-    				btn->toggleToStatus(button_stop_status);
+				sendStatusUpdateMessage(button_stop_status);
+    				//btn->toggleToStatus(button_stop_status);
 				return ;
 			}
 		}
@@ -159,7 +163,7 @@ void MainWindow::showImage(bool immediately) {
 			Logger::log(Logger::INFO," fde is stared for screenshoting");
 			QString retScreen = dbus_utils::utils("screenshot");
 			if (retScreen == dbus_utils::errorS) {
-				imageLabel->setText("Error: openFDE Service not started. ");
+				QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
 				return ;
 			}
 			imagePath = "/tmp/openfde_screen.jpg";

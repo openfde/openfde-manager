@@ -3,16 +3,27 @@
 // 自定义圆形背景和形状按钮的类
 CircleWidgetWithButton::CircleWidgetWithButton(QWidget *parent):  QWidget(parent), isTriangle(true) {
     setFixedSize(200, 200); // 设置窗口大小
-	setWindowOpacity(0.1); // 设置按钮整体透明度为 80%
+    setWindowOpacity(0.1); // 设置按钮整体透明度为 80%
     // 创建形状切换按钮
     shapeButton = new QPushButton(this);
     shapeButton->setFixedSize(60, 60); // 设置按钮大小
     shapeButton->move(70, 70); // 将按钮放置在圆形背景的中心
     updateButtonShape(); // 初始形状为三角形
+			     timer = new QTimer(this);
+    timer->setSingleShot(true);
+    shapeButton->setProperty("isClickable", true);
 
     // 连接按钮的点击信号到槽函数
-    connect(shapeButton, &QPushButton::clicked, this, &CircleWidgetWithButton::toggleButtonShape);
-       // Add hover event handler
+    connect(shapeButton, &QPushButton::clicked, this, [this]() {
+        if (shapeButton->property("isClickable").toBool()) {
+            shapeButton->setProperty("isClickable", false);
+            timer->start(500); // 500ms cooldown
+            toggleButtonShape();
+        }
+    });
+    connect(timer, &QTimer::timeout, this, [this]() {
+        shapeButton->setProperty("isClickable", true);
+    });
     shapeButton->setMouseTracking(true);
     shapeButton->setStyleSheet(
 		    "QPushButton {"
@@ -48,7 +59,6 @@ void CircleWidgetWithButton::updateButtonShape(bool withAction) {
     if (isTriangle) {
         // 三角形遮罩
         QPolygonF triangle;
-        //triangle << QPointF(50, 10) << QPointF(10, 30) << QPointF(50, 50);
         triangle << QPointF(15, 50) << QPointF(15, 10) << QPointF(60,30);
         painter.drawPolygon(triangle);
 	if (!withAction) {
@@ -70,5 +80,10 @@ void CircleWidgetWithButton::updateButtonShape(bool withAction) {
     shapeButton->setMask(mask);
     shapeButton->update(); // 触发按钮重绘
 }
+
+void CircleWidgetWithButton::receiveStatusUpdateMessage(const QString status){
+    toggleToStatus(status,false);
+}
+
 
 
