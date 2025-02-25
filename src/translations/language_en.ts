@@ -152,6 +152,10 @@
         <translation type="finished">Restore window</translation>
     </message>
     <message>
+        <source>最小化</source>
+        <translation type="finished">Minimize</translation>
+    </message>
+    <message>
         <source>退出</source>
         <translation type="finished">Quit</translation>
     </message>

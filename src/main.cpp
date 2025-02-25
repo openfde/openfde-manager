@@ -65,8 +65,10 @@ int main(int argc, char *argv[])
     QMenu *trayMenu = new QMenu(&w);
     QAction *restoreAction = trayMenu->addAction(QObject::tr("恢复窗口"));
     QAction *quitAction = trayMenu->addAction(QObject::tr("退出"));
+    QAction *minimizeAction = trayMenu->addAction(QObject::tr("最小化"));
 
     // Connect actions
+    QObject::connect(minimizeAction, &QAction::triggered, &w, &QWidget::hide);
     QObject::connect(restoreAction, &QAction::triggered, &w, &QWidget::showNormal);
     QObject::connect(quitAction, &QAction::triggered, &a, &QApplication::quit);
      // Connect tray icon activation signal

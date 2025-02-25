@@ -51,7 +51,6 @@ public:
 		QString output = QString::fromLocal8Bit(wmctrlProcess.readAllStandardOutput());
 		int numOfDesktop = output.split("\n").count() - 1;
 
-		qDebug()<<"num of desktop"<< numOfDesktop;
 		// Get current desktop
 		int currentDesktop = 0;
 		QStringList lines = output.split("\n");
@@ -62,7 +61,6 @@ public:
 			break;
 			}
 		}
-		qDebug()<<"current of desktop"<< currentDesktop;
 		int fdeDesktopInt = currentDesktop;
 
 		if (numOfDesktop == 1) { //only 1 desktop
@@ -73,10 +71,8 @@ public:
 		} else { //condition: two or more desktops
 			// Check desktops after current desktop
 			for (int i = currentDesktop ; i <= numOfDesktop -1; i++) {
-				qDebug()<<"check idle window forward"<< currentDesktop << i;
 				if (!hasWinOnDesktop(QString::number(i))) {
 					fdeDesktopInt = i;
-					qDebug()<<"idle window forward"<< fdeDesktopInt;
 					QProcess::execute("wmctrl", QStringList() << "-s" << QString::number(fdeDesktopInt));
 					return;
 				}
@@ -84,10 +80,8 @@ public:
 
 			// Check desktops before current desktop
 			for (int i = currentDesktop ; i > 0; i--) {
-				qDebug()<<"check idle window back"<< currentDesktop << i;
 				if (!hasWinOnDesktop(QString::number(i))) {
 					fdeDesktopInt = i;
-					qDebug()<<"idle window backwoard"<< fdeDesktopInt;
 					QProcess::execute("wmctrl", QStringList() << "-s" << QString::number(fdeDesktopInt));
 					return;
 				}

@@ -106,7 +106,6 @@ public:
 			if (reply.value().contains("FailedExitCode")) {
 				QStringList parts = reply.value().split(" ");
 				if (parts.size() >= 2) {
-					qDebug()<<"errno is "<<parts[1];
 					return errorS +  parts[1];
 				}
 				return errorS+ErrSystem;
