@@ -60,13 +60,12 @@ void mouseDoubleClickEvent(QMouseEvent *event) override {
 	process.waitForFinished(-1);
 	//获取waitForFinished返回值
 	int exitCode = process.exitCode();
-	qDebug()<<"exit code is "<<exitCode;
 	if (exitCode == 1) {
 		QProcess gprocess;
 		gprocess.start("bash", QStringList() << "/usr/bin/fde_utils"<<"get_desktop");
 		gprocess.waitForFinished(3000);
 		QString output(gprocess.readAllStandardOutput());
-		qDebug()<<"switch to the desktop  "<<output;
+		Logger::log(Logger::DEBUG,"switch to desktop "+ output.toStdString());
         	QProcess::startDetached("wmctrl", QStringList() << "-s" << output);
 	}
     }
