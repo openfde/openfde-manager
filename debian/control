@@ -1,4 +1,5 @@
 Source: openfde.com
+Version: 1.0.1
 Section: utils
 Priority: optional
 Maintainer: warlice <warlice@openfde.com>
@@ -7,6 +8,6 @@ Standards-Version: 3.9.6
 Homepage: https://openfde.com
 
 Package: com.openfde.manager
-Architecture: any
+Architecture: arm64
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: A graphic user interface to manager OpenFDE.

@@ -3,3 +3,4 @@
 systemctl stop openfde-dbus.service
 systemctl disable openfde-dbus.service
 rm -rf /lib/systemd/system/openfde-dbus.service
+rm -rf /opt/apps/com.openfde.manager/logs

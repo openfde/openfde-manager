@@ -143,6 +143,10 @@
         <source>安装完成</source>
         <translation type="finished">Installed </translation>
     </message>
+    <message>
+        <source>未安装</source>
+        <translation type="finished">UnInstalled </translation>
+    </message>
 </context>
 
 <context>

@@ -288,13 +288,21 @@ void MainWindow::onInstallWorkerFinishedError(QString err)
 void MainWindow::onSettingsButtonClicked()
 {
     //获取版本信息
-	QString versionFDE = dbus_utils::tools(dbus_utils::methodStatus);
-	if (versionFDE != dbus_utils::openfdeStatusInstalled) 
-		versionFDE = "uninstalled";
-	else{
-		versionFDE = dbus_utils::tools(dbus_utils::methodVersionFDE);
+	QString versionFDE, ctrlFDE;
+	QFile getfde("/usr/bin/get_fde.sh");
+	//check the exist of the primary script get_fde.sh
+	if (!getfde.exists()){
+		versionFDE = tr("未安装");
+		ctrlFDE = tr("未安装");
+	}else {
+		versionFDE = dbus_utils::tools(dbus_utils::methodStatus);
+		if (versionFDE != dbus_utils::openfdeStatusInstalled) 
+			versionFDE = tr("未安装");
+		else{
+			versionFDE = dbus_utils::tools(dbus_utils::methodVersionFDE);
+		}
+		ctrlFDE = dbus_utils::tools(dbus_utils::methodVersionCtrl);
 	}
-	QString ctrlFDE = dbus_utils::tools(dbus_utils::methodVersionCtrl);
 	// Filter out newline characters from version strings
 	versionFDE.replace("\n", "");
 	ctrlFDE.replace("\n", "");
