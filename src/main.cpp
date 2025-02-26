@@ -24,7 +24,8 @@ int main(int argc, char *argv[])
     lang = lang.left(2).toLower();
 
     QString qm = ":/translations/language_en.qm";
-    if (lang != "zh") {
+    Logger::log(Logger::INFO, "language is "+ lang.toStdString());
+    if (lang == "zh") {
 	qm = ":/translations/language_zh.qm";
     }
     QTranslator translator;
