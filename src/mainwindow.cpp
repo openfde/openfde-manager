@@ -302,6 +302,9 @@ void MainWindow::onSettingsButtonClicked()
 			versionFDE = dbus_utils::tools(dbus_utils::methodVersionFDE);
 		}
 		ctrlFDE = dbus_utils::tools(dbus_utils::methodVersionCtrl);
+		if (ctrlFDE.contains(dbus_utils::errorS)) {
+			ctrlFDE = tr("未安装");
+		}
 	}
 	// Filter out newline characters from version strings
 	versionFDE.replace("\n", "");
