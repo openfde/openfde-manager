@@ -88,7 +88,7 @@ private:
     QPushButton *closeButton;    // 关闭按钮
     QWidget *centralWidget;
     QVBoxLayout * centralLayout;
-    CircleWidgetWithButton *btn;
+    ShapeButton *btn;
 
     FileDownloader *downloader;
     QProgressBar *progressBar; // 进度条

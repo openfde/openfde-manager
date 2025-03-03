@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     imageLabel->setPixmap(pixmap.scaled(425,237, Qt::KeepAspectRatio)); // 缩放图片并显示
     imageLabel->lower();
 
-    btn = new CircleWidgetWithButton(this);
+    btn = new ShapeButton(this);
     //btn->move((this->width()-30)/2,(this->height()-30)/2);
     btn->move(100,50);
     btn->show();
@@ -60,9 +60,9 @@ MainWindow::MainWindow(QWidget *parent)
     }
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
-    connect(btn, &CircleWidgetWithButton::sendMessage, this, &MainWindow::onMessageReceived,Qt::QueuedConnection);
+    connect(btn, &ShapeButton::sendMessage, this, &MainWindow::onMessageReceived,Qt::QueuedConnection);
     //must use queuedConnection because failed start will toggle the button to stop, if use blockConnection, the shape of the button will not update correctly.
-    connect(this,&MainWindow::sendStatusUpdateMessage, btn,&CircleWidgetWithButton::receiveStatusUpdateMessage,Qt::QueuedConnection);
+    connect(this,&MainWindow::sendStatusUpdateMessage, btn,&ShapeButton::receiveStatusUpdateMessage,Qt::QueuedConnection);
 }
 
 static const QString getOpenfdeUrl = "http://phyvirt.openfde.com/getopenfde/get-openfde.sh";
