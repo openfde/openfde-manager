@@ -13,10 +13,10 @@ static const QString button_stop_status = "stop";
 static const QString button_start_status = "start";
 
 // 自定义圆形背景和形状按钮的类
-class CircleWidgetWithButton : public QWidget {
+class ShapeButton : public QWidget {
 	Q_OBJECT
 public:
-    explicit CircleWidgetWithButton(QWidget *parent = nullptr) ;
+    explicit ShapeButton(QWidget *parent = nullptr) ;
     void toggleToStatus(QString status,bool send = false);
 signals:
     void sendMessage(const QString &message, bool withAction); // 定义信号
