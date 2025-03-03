@@ -2,4 +2,4 @@ src/openfde-manager /opt/apps/com.openfde.manager/usr/bin/
 service/openfde-dbus.service /opt/apps/com.openfde.manager/files
 service/openfde.service /opt/apps/com.openfde.manager/usr/bin/
 data/openfde-manager.desktop /usr/share/applications/
-data/openfde-manager.png  /usr/share/icons/hicolor/96x96/apps/
+data/openfde-manager.svg  /usr/share/icons/hicolor/scalable/apps/

@@ -7,4 +7,4 @@ StartupNotify=false
 Terminal=false
 Type=Application
 Categories=Utility;
-Icon=/usr/share/icons/hicolor/96x96/apps/openfde-manager.png
+Icon=/usr/share/icons/hicolor/scalable/apps/openfde-manager.svg
