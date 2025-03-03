@@ -213,7 +213,7 @@ void MainWindow::createTitleBar()
     iconLabel->setPixmap(icon.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	layout->addWidget(iconLabel);
     // 添加标题
-    QLabel *titleLabel = new QLabel("OpenFDE Manager", titleBar); // 创建标题标签
+    QLabel *titleLabel = new QLabel("OpenFDE管理中心", titleBar); // 创建标题标签
     titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #333333;"); // 设置标题样式
     //titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #808080;"); // 设置标题样式
     layout->addWidget(titleLabel); // 将标题添加到布局左侧

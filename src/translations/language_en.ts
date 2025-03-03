@@ -48,10 +48,6 @@
         <translation type="finished">Hidden Window</translation>
     </message>
     <message>
-        <source>关闭管理程序</source>
-        <translation type="finished">Close OpenFDE Manager </translation>
-    </message>
-    <message>
         <source>确认卸载</source>
         <translation type="finished">Confirm Uninstalling</translation>
     </message>
