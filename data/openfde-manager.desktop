@@ -1,8 +1,8 @@
 [Desktop Entry]
 Comment=OpenFDE
 Exec=/opt/apps/com.openfde.manager/usr/bin/openfde-manager
-Name=OpenFDE-Manager
-Name[zh_CN]=OpenFDE-Manager
+Name=OpenFDE Manager
+Name[zh_CN]=OpenFDE管理中心
 StartupNotify=false
 Terminal=false
 Type=Application
