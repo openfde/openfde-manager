@@ -210,7 +210,7 @@ void MainWindow::createTitleBar()
 	layout->setAlignment(Qt::AlignLeft); // Align widgets to the left
     QLabel *iconLabel = new QLabel(titleBar);
     QPixmap icon(":/images/openfde_icon.png");
-    iconLabel->setPixmap(icon.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    iconLabel->setPixmap(icon.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	layout->addWidget(iconLabel);
     // 添加标题
     QLabel *titleLabel = new QLabel("OpenFDE管理中心", titleBar); // 创建标题标签
