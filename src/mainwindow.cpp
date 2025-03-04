@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this,&MainWindow::sendStatusUpdateMessage, btn,&ShapeButton::receiveStatusUpdateMessage,Qt::QueuedConnection);
 }
 
-static const QString getOpenfdeUrl = "http://phyvirt.openfde.com/getopenfde/get-openfde.sh";
+static const QString getOpenfdeUrl = "https://openfde.com/getopenfde/ex-install-openfde.sh";
 
 void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 
