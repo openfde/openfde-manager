@@ -70,6 +70,25 @@ static const QString getOpenfdeUrl = "http://phyvirt.openfde.com/getopenfde/get-
 void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 
 	Logger::log(Logger::INFO, QString("ReceiverClass: Received message: %1").arg(string).toStdString());
+	QProcess *process = new QProcess();
+	process->start("/usr/sbin/getstatus", QStringList());
+	process->waitForFinished(-1);
+	QString output(process->readAllStandardOutput());
+	QStringList lines = output.split('\n');
+	for (const QString& line : lines) {
+		if (line.contains("exec control")) {
+			Logger::log(Logger::DEBUG,line.toStdString());
+			QStringList parts = line.split(':');
+			if (parts.size() == 2 && parts[1].trimmed() != "off") {
+				QMessageBox::information(this,
+					tr("提示"),
+					tr("需要关闭应用执行控制才能继续"),
+					QMessageBox::Ok);
+				sendStatusUpdateMessage(button_stop_status);
+				return;
+			}
+		}
+	}
 	installWorker = new Worker();
 	if (string  == button_start_status) {
 		QString filepath = "/usr/bin/get_fde.sh";
@@ -84,7 +103,6 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 			 // 创建状态标签
 				QMessageBox::critical(this,tr("Error"), tr("网络或磁盘故障"),QMessageBox::Ok);
 				sendStatusUpdateMessage(button_stop_status);
-    				//btn->toggleToStatus(button_stop_status);
 				return ;
 			}
 			//construct /usr/bin/get_fde.sh
@@ -93,7 +111,6 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 				// 创建状态标签
 				QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
 				sendStatusUpdateMessage(button_stop_status);
-    				//btn->toggleToStatus(button_stop_status);
 				return ;
 			}
 		}
@@ -177,7 +194,7 @@ void MainWindow::showImage(bool immediately) {
 	QPixmap pixmap(imagePath);
 	if (pixmap.isNull()) {
 		Logger::log(Logger::ERROR,QString(" failed to load %1 for pixmap").arg(imagePath).toStdString());
-		imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
+		//imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
 	} else {
 		Logger::log(Logger::INFO," show screenshot");
 		centralWidget->resize(this->width(),this->height()-30);

@@ -140,6 +140,10 @@
         <translation type="finished">Installed </translation>
     </message>
     <message>
+        <source>需要关闭应用执行控制才能继续</source>
+        <translation type="finished">Need turn off the application exec controling</translation>
+    </message>
+    <message>
         <source>未安装</source>
         <translation type="finished">UnInstalled </translation>
     </message>
