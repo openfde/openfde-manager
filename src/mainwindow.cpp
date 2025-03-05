@@ -70,22 +70,25 @@ static const QString getOpenfdeUrl = "https://openfde.com/getopenfde/ex-install-
 void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 
 	Logger::log(Logger::INFO, QString("ReceiverClass: Received message: %1").arg(string).toStdString());
-	QProcess *process = new QProcess();
-	process->start("/usr/sbin/getstatus", QStringList());
-	process->waitForFinished(-1);
-	QString output(process->readAllStandardOutput());
-	QStringList lines = output.split('\n');
-	for (const QString& line : lines) {
-		if (line.contains("exec control")) {
-			Logger::log(Logger::DEBUG,line.toStdString());
-			QStringList parts = line.split(':');
-			if (parts.size() == 2 && parts[1].trimmed() != "off") {
-				QMessageBox::information(this,
-					tr("提示"),
-					tr("需要关闭应用执行控制才能继续"),
-					QMessageBox::Ok);
-				sendStatusUpdateMessage(button_stop_status);
-				return;
+	QFile getstatusFile("/usr/bin/getstatus");
+	if (getstatusFile.exists()) {
+		QProcess *process = new QProcess();
+		process->start("/usr/sbin/getstatus", QStringList());
+		process->waitForFinished(-1);
+		QString output(process->readAllStandardOutput());
+		QStringList lines = output.split('\n');
+		for (const QString& line : lines) {
+			if (line.contains("exec control")) {
+				Logger::log(Logger::DEBUG,line.toStdString());
+				QStringList parts = line.split(':');
+				if (parts.size() == 2 && parts[1].trimmed() != "off") {
+					QMessageBox::information(this,
+						tr("提示"),
+						tr("需要关闭应用执行控制才能继续"),
+						QMessageBox::Ok);
+					sendStatusUpdateMessage(button_stop_status);
+					return;
+				}
 			}
 		}
 	}
