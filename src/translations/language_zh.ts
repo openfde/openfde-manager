@@ -5,147 +5,147 @@
     <name>MainWindow</name>
     <message>
         <source>FDE Dbus服务未启动</source>
-        <translation type="unfinished">FDE Dbus service not started</translation>
+        <translation type="finished">FDE Dbus服务未启动</translation>
     </message>
     <message>
         <source>网络或磁盘故障</source>
-        <translation type="unfinished">Network failure</translation>
+        <translation type="finished">网络或磁盘故障</translation>
     </message>
     <message>
         <source>设置</source>
-        <translation type="unfinished">Settings</translation>
+        <translation type="finished">设置</translation>
     </message>
     <message>
         <source>卸载</source>
-        <translation type="unfinished">Uninstall</translation>
+        <translation type="finished">卸载</translation>
     </message>
     <message>
         <source>卸载时一起删除数据</source>
-        <translation type="unfinished">Clear user data</translation>
+        <translation type="finished">卸载时一起删除数据</translation>
     </message>
     <message>
         <source>系统设置</source>
-        <translation type="unfinished">System Settings</translation>
+        <translation type="finished">系统设置</translation>
     </message>
     <message>
         <source>OpenFDE版本</source>
-        <translation type="unfinished">OpenFDE Version</translation>
+        <translation type="finished">OpenFDE版本</translation>
     </message>
     <message>
         <source>控制程序版本</source>
-        <translation type="unfinished">Control Version</translation>
+        <translation type="finished">控制程序版本</translation>
     </message>
     <message>
         <source>OpenFDE未安装</source>
-        <translation type="unfinished">OpenFDE not installed</translation>
+        <translation type="finished">OpenFDE未安装</translation>
     </message>
     <message>
         <source>确定要卸载OpenFDE吗？</source>
-        <translation type="unfinished">Confirm to uninstall OpenFDE?</translation>
+        <translation type="finished">确定要卸载OpenFDE吗?</translation>
     </message>
     <message>
         <source>隐藏窗口</source>
-        <translation type="unfinished">Hidden Window</translation>
+        <translation type="finished">隐藏窗口</translation>
     </message>
     <message>
         <source>确认卸载</source>
-        <translation type="unfinished">Confirm Uninstalling</translation>
+        <translation type="finished">确认卸载</translation>
     </message>
     <message>
         <source>准备中...</source>
-        <translation type="unfinished">Preparing...</translation>
+        <translation type="finished">准备中...</translation>
     </message>
     <message>
         <source>下载中...</source>
-        <translation type="unfinished">Downloading...</translation>
+        <translation type="finished">下载中...</translation>
     </message>
     <message>
         <source>解压中...</source>
-        <translation type="unfinished">Extracting...</translation>
+        <translation type="finished">解压中...</translation>
     </message>
     <message>
         <source>安装中...</source>
-        <translation type="unfinished">Installing...</translation>
+        <translation type="finished">安装中...</translation>
     </message>
     <message>
         <source>取消</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation type="finished">取消</translation>
     </message>
     <message>
         <source>启动OpenFDE</source>
-        <translation type="unfinished">Start OpenFDE</translation>
+        <translation type="finished">启动OpenFDE</translation>
     </message>
     <message>
         <source>不支持的GPU</source>
-        <translation type="unfinished">The GPU is not support</translation>
+        <translation type="finished">不支持的GPU</translation>
     </message>
     <message>
         <source>不支持的内核</source>
-        <translation type="unfinished">The Kernel is not support</translation>
+        <translation type="finished">不支持的内核</translation>
     </message>
     <message>
         <source>系统错误</source>
-        <translation type="unfinished">System Error</translation>
+        <translation type="finished">系统错误</translation>
     </message>
     <message>
         <source>系统环境错误</source>
-        <translation type="unfinished">System Error</translation>
+        <translation type="finished">系统环境错误</translation>
     </message>
     <message>
         <source>您选择退出安装</source>
-        <translation type="unfinished">You choosed to exit</translation>
+        <translation type="finished">您选择退出安装</translation>
     </message>
     <message>
         <source>安装Binder失败</source>
-        <translation type="unfinished">Install Binder failed</translation>
+        <translation type="finished">安装Binder失败</translation>
     </message>
     <message>
         <source>不支持的参数</source>
-        <translation type="unfinished">Unsupport args</translation>
+        <translation type="finished">不支持的参数</translation>
     </message>
     <message>
         <source>请先关闭OpenFDE</source>
-        <translation type="unfinished">Please stop OpenFDE first</translation>
+        <translation type="finished">请先关闭OpenFDE</translation>
     </message>
     <message>
         <source>未安装curl命令</source>
-        <translation type="unfinished">Please install curl</translation>
+        <translation type="finished">未安装curl命令</translation>
     </message>
     <message>
         <source>Pid Max超过65535</source>
-        <translation type="unfinished">Pid Max great than 65535</translation>
+        <translation type="finished">Pid Max 超过65535</translation>
     </message>
     <message>
         <source>网络错误</source>
-        <translation type="unfinished">Network error</translation>
+        <translation type="finished">网络错误</translation>
     </message>
     <message>
         <source>apt源错误</source>
-        <translation type="unfinished">apt failure</translation>
+        <translation type="finished">apt 源错误</translation>
     </message>
     <message>
         <source>已取消</source>
-        <translation type="unfinished">Canceled</translation>
+        <translation type="finished">已取消</translation>
     </message>
     <message>
         <source>确定要取消下载吗?</source>
-        <translation type="unfinished">Are you sure to cancel the downloading?</translation>
+        <translation type="finished">确定要取消下载吗?</translation>
     </message>
     <message>
         <source>卸载成功</source>
-        <translation type="unfinished">Uninstalled </translation>
+        <translation type="finished">卸载成功</translation>
     </message>
     <message>
         <source>安装完成</source>
-        <translation type="unfinished">Installed </translation>
+        <translation type="finished">安装完成</translation>
     </message>
     <message>
         <source>需要关闭应用执行控制才能继续</source>
-        <translation type="unfinished">Need turn off the application exec controling</translation>
+        <translation type="finished">需要关闭应用执行控制才能继续</translation>
     </message>
     <message>
         <source>未安装</source>
-        <translation type="unfinished">UnInstalled </translation>
+        <translation type="finished">未安装</translation>
     </message>
 </context>
 
@@ -153,15 +153,15 @@
     <name>QObject</name>
     <message>
         <source>恢复窗口</source>
-        <translation type="unfinished">Restore window</translation>
+        <translation type="finished">恢复窗口</translation>
     </message>
     <message>
         <source>最小化</source>
-        <translation type="unfinished">Minimize</translation>
+        <translation type="finished">最小化</translation>
     </message>
     <message>
         <source>退出</source>
-        <translation type="unfinished">Quit</translation>
+        <translation type="finished">退出</translation>
     </message>
 </context>
 </TS>
