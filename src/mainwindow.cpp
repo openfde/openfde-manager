@@ -240,6 +240,7 @@ void MainWindow::createTitleBar()
 
     // 创建设置按钮
     settingsButton = new QPushButton(titleBar);
+    settingsButton->setFocusPolicy(Qt::NoFocus);
     settingsButton->setGeometry(this->width() - 120, 5, 20, 20); // 设置按钮位置和大小
     settingsButton->setIcon(QIcon(":/images/settings.png")); // 使用资源文件中的图标
     settingsButton->setIconSize(QSize(20, 20)); // 设置图标
@@ -262,6 +263,7 @@ void MainWindow::createTitleBar()
     minimizeButton->setGeometry(this->width() - 80, 5, 20, 20); // 设置按钮位置和大小
     minimizeButton->setIcon(QIcon(":/images/minimize.png")); // 使用资源文件中的图标
     minimizeButton->setIconSize(QSize(20,20)); // 设置图标大小
+    minimizeButton->setFocusPolicy(Qt::NoFocus);
     minimizeButton->setStyleSheet(
 		"QPushButton {"
 		"    border: none;"
@@ -278,6 +280,7 @@ void MainWindow::createTitleBar()
 
     // 创建关闭按钮
     closeButton = new QPushButton(titleBar);
+    closeButton->setFocusPolicy(Qt::NoFocus);
     closeButton->setGeometry(this->width() - 40, 5, 20, 20); // 设置按钮位置和大小
     closeButton->setIcon(QIcon(":/images/close.png")); // 使用资源文件中的图标
     closeButton->setIconSize(QSize(20,20)); // 设置图标大小
