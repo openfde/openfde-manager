@@ -1,3 +1,6 @@
+/ Copyright (C) 2025 OpenFDE.
+// SPDX-License-Identifier: Apache-2.0
+
 #include "shapeButton.h"
 
 // 自定义圆形背景和形状按钮的类

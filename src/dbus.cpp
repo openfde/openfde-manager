@@ -1,3 +1,6 @@
+/ Copyright (C) 2025 OpenFDE.
+// SPDX-License-Identifier: Apache-2.0
+
 #include "dbus.h"
 
 
