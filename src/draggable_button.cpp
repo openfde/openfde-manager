@@ -1,3 +1,6 @@
+/ Copyright (C) 2025 OpenFDE.
+// SPDX-License-Identifier: Apache-2.0
+
 #include "draggable_button.h"
 
 DraggableButton::DraggableButton(ArrayDirection direction, const QString &iconPath, QRect rect, QWidget *parent ) : QWidget(parent) {

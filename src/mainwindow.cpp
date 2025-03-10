@@ -1,3 +1,6 @@
+/ Copyright (C) 2025 OpenFDE.
+// SPDX-License-Identifier: Apache-2.0
+
 #include "mainwindow.h"
 #include "dbus.h"
 #include <QDir>
@@ -42,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     imageLabel->setPixmap(pixmap.scaled(425,237, Qt::KeepAspectRatio)); // 缩放图片并显示
     imageLabel->lower();
 
-    btn = new CircleWidgetWithButton(this);
+    btn = new ShapeButton(this);
     //btn->move((this->width()-30)/2,(this->height()-30)/2);
     btn->move(100,50);
     btn->show();
@@ -60,16 +63,38 @@ MainWindow::MainWindow(QWidget *parent)
     }
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
-    connect(btn, &CircleWidgetWithButton::sendMessage, this, &MainWindow::onMessageReceived,Qt::QueuedConnection);
+    connect(btn, &ShapeButton::sendMessage, this, &MainWindow::onMessageReceived,Qt::QueuedConnection);
     //must use queuedConnection because failed start will toggle the button to stop, if use blockConnection, the shape of the button will not update correctly.
-    connect(this,&MainWindow::sendStatusUpdateMessage, btn,&CircleWidgetWithButton::receiveStatusUpdateMessage,Qt::QueuedConnection);
+    connect(this,&MainWindow::sendStatusUpdateMessage, btn,&ShapeButton::receiveStatusUpdateMessage,Qt::QueuedConnection);
 }
 
-static const QString getOpenfdeUrl = "http://phyvirt.openfde.com/getopenfde/get-openfde.sh";
+static const QString getOpenfdeUrl = "https://openfde.com/getopenfde/ex-install-openfde.sh";
 
 void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 
 	Logger::log(Logger::INFO, QString("ReceiverClass: Received message: %1").arg(string).toStdString());
+	QFile getstatusFile("/usr/bin/getstatus");
+	if (getstatusFile.exists()) {
+		QProcess *process = new QProcess();
+		process->start("/usr/sbin/getstatus", QStringList());
+		process->waitForFinished(-1);
+		QString output(process->readAllStandardOutput());
+		QStringList lines = output.split('\n');
+		for (const QString& line : lines) {
+			if (line.contains("exec control")) {
+				Logger::log(Logger::DEBUG,line.toStdString());
+				QStringList parts = line.split(':');
+				if (parts.size() == 2 && parts[1].trimmed() != "off") {
+					QMessageBox::information(this,
+						tr("提示"),
+						tr("需要关闭应用执行控制才能继续"),
+						QMessageBox::Ok);
+					sendStatusUpdateMessage(button_stop_status);
+					return;
+				}
+			}
+		}
+	}
 	installWorker = new Worker();
 	if (string  == button_start_status) {
 		QString filepath = "/usr/bin/get_fde.sh";
@@ -84,7 +109,6 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 			 // 创建状态标签
 				QMessageBox::critical(this,tr("Error"), tr("网络或磁盘故障"),QMessageBox::Ok);
 				sendStatusUpdateMessage(button_stop_status);
-    				//btn->toggleToStatus(button_stop_status);
 				return ;
 			}
 			//construct /usr/bin/get_fde.sh
@@ -93,7 +117,6 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 				// 创建状态标签
 				QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
 				sendStatusUpdateMessage(button_stop_status);
-    				//btn->toggleToStatus(button_stop_status);
 				return ;
 			}
 		}
@@ -177,7 +200,7 @@ void MainWindow::showImage(bool immediately) {
 	QPixmap pixmap(imagePath);
 	if (pixmap.isNull()) {
 		Logger::log(Logger::ERROR,QString(" failed to load %1 for pixmap").arg(imagePath).toStdString());
-		imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
+		//imageLabel->setText("Failed to load image!"); // 如果图片加载失败，显示错误信息
 	} else {
 		Logger::log(Logger::INFO," show screenshot");
 		centralWidget->resize(this->width(),this->height()-30);
@@ -210,16 +233,17 @@ void MainWindow::createTitleBar()
 	layout->setAlignment(Qt::AlignLeft); // Align widgets to the left
     QLabel *iconLabel = new QLabel(titleBar);
     QPixmap icon(":/images/openfde_icon.png");
-    iconLabel->setPixmap(icon.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    iconLabel->setPixmap(icon.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	layout->addWidget(iconLabel);
     // 添加标题
-    QLabel *titleLabel = new QLabel("OpenFDE Manager", titleBar); // 创建标题标签
+    QLabel *titleLabel = new QLabel("OpenFDE管理中心", titleBar); // 创建标题标签
     titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #333333;"); // 设置标题样式
     //titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #808080;"); // 设置标题样式
     layout->addWidget(titleLabel); // 将标题添加到布局左侧
 
     // 创建设置按钮
     settingsButton = new QPushButton(titleBar);
+    settingsButton->setFocusPolicy(Qt::NoFocus);
     settingsButton->setGeometry(this->width() - 120, 5, 20, 20); // 设置按钮位置和大小
     settingsButton->setIcon(QIcon(":/images/settings.png")); // 使用资源文件中的图标
     settingsButton->setIconSize(QSize(20, 20)); // 设置图标
@@ -242,6 +266,7 @@ void MainWindow::createTitleBar()
     minimizeButton->setGeometry(this->width() - 80, 5, 20, 20); // 设置按钮位置和大小
     minimizeButton->setIcon(QIcon(":/images/minimize.png")); // 使用资源文件中的图标
     minimizeButton->setIconSize(QSize(20,20)); // 设置图标大小
+    minimizeButton->setFocusPolicy(Qt::NoFocus);
     minimizeButton->setStyleSheet(
 		"QPushButton {"
 		"    border: none;"
@@ -258,6 +283,7 @@ void MainWindow::createTitleBar()
 
     // 创建关闭按钮
     closeButton = new QPushButton(titleBar);
+    closeButton->setFocusPolicy(Qt::NoFocus);
     closeButton->setGeometry(this->width() - 40, 5, 20, 20); // 设置按钮位置和大小
     closeButton->setIcon(QIcon(":/images/close.png")); // 使用资源文件中的图标
     closeButton->setIconSize(QSize(20,20)); // 设置图标大小

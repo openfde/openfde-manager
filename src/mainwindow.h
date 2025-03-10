@@ -4,6 +4,7 @@
 #include <QEvent>
 #include <QProgressDialog>
 #include "shapeButton.h"
+#include <QMouseEvent>
 #include "download.h"
 #include "install_worker.h"
 #include "start_worker.h"
@@ -23,7 +24,31 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+private:
+	QPoint dragPosition;    // Add this to store the drag position
+
 protected:
+    void changeEvent(QEvent *event) override {
+	if (event->type() == QEvent::ActivationChange) {
+      	    if (!isActiveWindow()) {
+		clearFocus();
+	    }
+	}
+	    QMainWindow::changeEvent(event);
+    }
+    void mousePressEvent(QMouseEvent *event) override {
+	if (event->button() == Qt::LeftButton) {
+	    dragPosition = event->globalPos() - frameGeometry().topLeft();
+            event->accept();
+        }
+    }
+
+    void mouseMoveEvent(QMouseEvent *event) override {
+        if (event->buttons() & Qt::LeftButton) {
+            move(event->globalPos() - dragPosition);
+            event->accept();
+        }
+    }
     bool eventFilter(QObject* obj, QEvent* event) override {
         if (event->type() == QEvent::WindowActivate) {
         }
@@ -88,7 +113,7 @@ private:
     QPushButton *closeButton;    // 关闭按钮
     QWidget *centralWidget;
     QVBoxLayout * centralLayout;
-    CircleWidgetWithButton *btn;
+    ShapeButton *btn;
 
     FileDownloader *downloader;
     QProgressBar *progressBar; // 进度条

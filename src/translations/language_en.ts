@@ -48,10 +48,6 @@
         <translation type="finished">Hidden Window</translation>
     </message>
     <message>
-        <source>关闭管理程序</source>
-        <translation type="finished">Close OpenFDE Manager </translation>
-    </message>
-    <message>
         <source>确认卸载</source>
         <translation type="finished">Confirm Uninstalling</translation>
     </message>
@@ -142,6 +138,10 @@
     <message>
         <source>安装完成</source>
         <translation type="finished">Installed </translation>
+    </message>
+    <message>
+        <source>需要关闭应用执行控制才能继续</source>
+        <translation type="finished">Need turn off the application exec controling</translation>
     </message>
     <message>
         <source>未安装</source>
