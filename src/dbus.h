@@ -25,6 +25,7 @@ public:
 
 	static const QString errorS; 
 	static const QString ErrService; 
+	static const QString ErrTimeout;
 	static const QString ErrSystem;  
 
 	static const char* parseError(QString);
@@ -97,9 +98,14 @@ public:
 		args << QVariant::fromValue(QString(command));
 		message.setArguments(args);
 
-		int timeout=360000;
+		int timeout=420000; //7 min
 		QDBusConnection bus = QDBusConnection::systemBus();  
 		QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
+
+		if (reply.error().type() == QDBusError::Timeout) {
+			Logger::log(Logger::ERROR, QString("%1 called tools timeout").arg(command).toStdString());
+			return errorS + ErrTimeout;
+		}
 
 		if (reply.isValid()) {
 			Logger::log(Logger::INFO, QString("%1 call tools successful, reply value is %2").arg(command).arg(reply.value()).toStdString());

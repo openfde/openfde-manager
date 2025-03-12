@@ -147,6 +147,10 @@
         <source>未安装</source>
         <translation type="finished">未安装</translation>
     </message>
+    <message>
+        <source>执行动作超时</source>
+        <translation type="finished">执行动作超时</translation>
+    </message>
 </context>
 
 <context>

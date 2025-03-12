@@ -147,6 +147,9 @@
         <source>未安装</source>
         <translation type="finished">UnInstalled </translation>
     </message>
+    <message>
+        <source>执行动作超时</source>
+        <translation type="finished">Action timeout </translation>
 </context>
 
 <context>

@@ -15,6 +15,7 @@ const QString dbus_utils::methodUninstall = "uninstall";
 
 const QString dbus_utils::ErrSystem = "1";
 const QString dbus_utils::ErrService = "-1";
+const QString dbus_utils::ErrTimeout = "-2";
 
 
 const char * dbus_utils::parseError(QString errorS){
@@ -23,6 +24,7 @@ const char * dbus_utils::parseError(QString errorS){
 		if (parts.size() >= 2) {
 			int errorCode = parts[1].toInt();
 			switch (errorCode) {
+				case -2: return  "执行动作超时";
 				case -1: return  "OpenFDE服务未启动";
 				case 1: return   "系统环境错误";
 				case 2: return   "不支持的GPU";
