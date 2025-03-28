@@ -1,4 +1,4 @@
-/ Copyright (C) 2025 OpenFDE.
+// Copyright (C) 2025 OpenFDE.
 // SPDX-License-Identifier: Apache-2.0
 
 #include "shapeButton.h"
