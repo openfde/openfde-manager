@@ -396,16 +396,40 @@ void MainWindow::onSettingsButtonClicked()
                        tr("确定要卸载OpenFDE吗？"),
                        QMessageBox::Yes | QMessageBox::No);
 		if (reply == QMessageBox::Yes) {
-			QString output = dbus_utils::tools(dbus_utils::methodUninstall);
-			if (output.contains(dbus_utils::errorS)) {
-				QMessageBox::critical(this, tr("Error"), tr(dbus_utils::parseError(output)), QMessageBox::Ok);
-				return;
-			}
-			bool deleteData = deleteDataCheckbox->isChecked();
-			if (deleteData) {
-				QString homeDir = QDir::homePath();
-				dbus_utils::clear(homeDir);
-			}
+			// Start loading animation
+			QMovie *loadingAnimation = new QMovie(":/images/loading.gif");
+			QLabel *loadingLabel = new QLabel(this);
+			loadingLabel->setMovie(loadingAnimation);
+			loadingLabel->setAlignment(Qt::AlignCenter);
+			loadingLabel->setGeometry(this->geometry().center().x() - 50, this->geometry().center().y() - 50, 100, 100);
+			loadingLabel->show();
+			loadingAnimation->start();
+
+			// Perform the clear operation asynchronously
+			QFuture<void> future = QtConcurrent::run([deleteDataCheckbox, homeDir]() {
+				QString output = dbus_utils::tools(dbus_utils::methodUninstall);
+				if (output.contains(dbus_utils::errorS)) {
+					QMessageBox::critical(this, tr("Error"), tr(dbus_utils::parseError(output)), QMessageBox::Ok);
+					return;
+				}
+				bool deleteData = deleteDataCheckbox->isChecked();
+				if (deleteData) {
+					QString homeDir = QDir::homePath();
+					dbus_utils::clear(homeDir);
+				}
+			});
+
+			// Cancel the animation after the operation is complete
+			QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
+			connect(watcher, &QFutureWatcher<void>::finished, this, [loadingLabel, loadingAnimation, watcher]() {
+				loadingAnimation->stop();
+				loadingLabel->hide();
+				loadingLabel->deleteLater();
+				watcher->deleteLater();
+			});
+			watcher->setFuture(future);
+
+			
 			QMessageBox* msgBox = new QMessageBox(this);
 			msgBox->setIcon(QMessageBox::Information);
 			msgBox->setText(tr("卸载成功"));
