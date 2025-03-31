@@ -80,13 +80,15 @@ void DraggableButton::moveByHoverLeaved() {
     if ( (arrayDirection == RIGHT && !movedRight) || (arrayDirection == LEFT) ) {
         button->setFixedSize(10,100);
         button->setIcon(QIcon(":/images/line.png"));
-        button->setStyleSheet("QPushButton{border-radius: 5px; }");
-        button->setIconSize(QSize(50,50));
+        //button->setStyleSheet("QPushButton{border-radius: 1px; }");
+        button->setStyleSheet("QPushButton { padding-right: 1px; }");
+        button->setIconSize(QSize(80,80));
         setFixedSize(10,100);
     }
     if ( arrayDirection == RIGHT && !movedRight) {
         move(reservedRect.width()-10, pos().y());
-        button->setStyleSheet("QPushButton { padding-right: 5px; }");
+        //button->setStyleSheet("QPushButton{border-radius: 1px; }");
+        button->setStyleSheet("QPushButton { padding-right: 1px; }");
         movedRight = true;
     }
 }
