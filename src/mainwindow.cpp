@@ -19,6 +19,10 @@
 #include <QProcess>
 #include <QFile>
 #include <QTextStream>
+#include <QFutureWatcher>
+#include <QFuture>
+#include <QMovie>
+#include <QtConcurrent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -386,9 +390,8 @@ void MainWindow::onSettingsButtonClicked()
 			QMessageBox* msgBox = new QMessageBox(this);
 			msgBox->setIcon(QMessageBox::Warning);
 			msgBox->setText(tr("OpenFDE未安装"));
-			msgBox->setStandardButtons(QMessageBox::NoButton);
+			msgBox->setWindowTitle(tr("OpenFDE未安装"));
 			msgBox->show();
-			QTimer::singleShot(1000, msgBox, &QMessageBox::close);
 			return;
 		}
 		QMessageBox::StandardButton reply = QMessageBox::question(this,
@@ -397,16 +400,25 @@ void MainWindow::onSettingsButtonClicked()
                        QMessageBox::Yes | QMessageBox::No);
 		if (reply == QMessageBox::Yes) {
 			// Start loading animation
+			 QDialog *animationWidget = new QDialog(this);
+
+                       animationWidget->setFixedSize(100, 100);
+
+                       animationWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+                       animationWidget->setWindowModality(Qt::ApplicationModal);
+
 			QMovie *loadingAnimation = new QMovie(":/images/loading.gif");
-			QLabel *loadingLabel = new QLabel(this);
+			QLabel *loadingLabel = new QLabel(animationWidget);
 			loadingLabel->setMovie(loadingAnimation);
+			loadingAnimation->setScaledSize(QSize(50,50));
 			loadingLabel->setAlignment(Qt::AlignCenter);
-			loadingLabel->setGeometry(this->geometry().center().x() - 50, this->geometry().center().y() - 50, 100, 100);
+			loadingLabel->setGeometry(animationWidget->geometry().center().x() - 50, animationWidget->geometry().center().y() - 50, 100, 100);
+			animationWidget->show();
 			loadingLabel->show();
 			loadingAnimation->start();
 
 			// Perform the clear operation asynchronously
-			QFuture<void> future = QtConcurrent::run([deleteDataCheckbox, homeDir]() {
+			QFuture<void> future = QtConcurrent::run([deleteDataCheckbox,this,animationWidget ]() {
 				QString output = dbus_utils::tools(dbus_utils::methodUninstall);
 				if (output.contains(dbus_utils::errorS)) {
 					QMessageBox::critical(this, tr("Error"), tr(dbus_utils::parseError(output)), QMessageBox::Ok);
@@ -417,6 +429,14 @@ void MainWindow::onSettingsButtonClicked()
 					QString homeDir = QDir::homePath();
 					dbus_utils::clear(homeDir);
 				}
+				animationWidget->close();
+				QMetaObject::invokeMethod(this, [this]() {
+					QMessageBox* msgBox = new QMessageBox(this);
+					msgBox->setIcon(QMessageBox::Information);
+					msgBox->setText(tr("卸载成功"));
+					msgBox->setWindowTitle(tr("卸载成功"));
+					msgBox->show();
+				}, Qt::QueuedConnection);
 			});
 
 			// Cancel the animation after the operation is complete
@@ -428,14 +448,6 @@ void MainWindow::onSettingsButtonClicked()
 				watcher->deleteLater();
 			});
 			watcher->setFuture(future);
-
-			
-			QMessageBox* msgBox = new QMessageBox(this);
-			msgBox->setIcon(QMessageBox::Information);
-			msgBox->setText(tr("卸载成功"));
-			msgBox->setStandardButtons(QMessageBox::NoButton);
-			msgBox->show();
-			QTimer::singleShot(1000, msgBox, &QMessageBox::close);
 		}
 	});
 
