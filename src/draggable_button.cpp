@@ -12,7 +12,7 @@ DraggableButton::DraggableButton(ArrayDirection direction, const QString &iconPa
     button = new QPushButton("", this);
     button->setStyleSheet("QPushButton{border-radius: 15px; }");
     button->setIcon(QIcon(iconPath));
-    button->setIconSize(QSize(80, 80));
+    button->setIconSize(QSize(100, 100));
     button->setFixedSize(100, 100);
     reservedIconPath = iconPath;
     reservedRect = rect;
@@ -66,7 +66,7 @@ void DraggableButton::moveByHoverEntered() {
         button->setFixedSize(100,100);
         setFixedSize(100,100);
         button->setIcon(QIcon(reservedIconPath));
-        button->setIconSize(QSize(80,80));
+        button->setIconSize(QSize(100,100));
         button->setStyleSheet("QPushButton{border-radius: 15px; }");
     }
     if ((arrayDirection == RIGHT && movedRight) ){
