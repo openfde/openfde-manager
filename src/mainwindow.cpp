@@ -373,12 +373,14 @@ void MainWindow::onSettingsButtonClicked()
 
 	// Update button
 	QCheckBox *deleteDataCheckbox = new QCheckBox(tr("卸载时一起删除数据"), versionWidget);
-	QPushButton *updateBtn = new QPushButton(tr("卸载"), versionWidget);
+    	deleteDataCheckbox->setFocusPolicy(Qt::NoFocus);
+	QPushButton *uninstallBtn = new QPushButton(tr("卸载"), versionWidget);
+	uninstallBtn->setFocusPolicy(Qt::NoFocus);
 	QHBoxLayout *uninstallLayout = new QHBoxLayout();
 	uninstallLayout->addWidget(deleteDataCheckbox);
-	uninstallLayout->addWidget(updateBtn);
+	uninstallLayout->addWidget(uninstallBtn);
 
-	connect(updateBtn, &QPushButton::clicked, this,[this, deleteDataCheckbox]()  {
+	connect(uninstallBtn, &QPushButton::clicked, this,[this, deleteDataCheckbox]()  {
 		QString ret = dbus_utils::tools(dbus_utils::methodStatus);
 		if ( ret != dbus_utils::openfdeStatusInstalled ) {
 			QMessageBox* msgBox = new QMessageBox(this);
