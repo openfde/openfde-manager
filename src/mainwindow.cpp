@@ -78,8 +78,7 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 
 	Logger::log(Logger::INFO, QString("ReceiverClass: Received message: %1").arg(string).toStdString());
 	QString securityStatus = dbus_utils::security(dbus_utils::methodSecurityQuery);
-	if (securityStatus == dbus_utils::errorS) {
-	}
+	Logger::log(Logger::INFO, QString("query security status: %1").arg(securityStatus).toStdString());
 	if (securityStatus == dbus_utils::statusSecurityEnable) {
 		QMessageBox::StandardButton reply = QMessageBox::question(this, 
 			tr("确认操作"), 
@@ -186,7 +185,7 @@ void MainWindow::showImage(bool immediately) {
 			Logger::log(Logger::INFO," fde is stared for screenshoting");
 			QString retScreen = dbus_utils::utils("screenshot");
 			if (retScreen == dbus_utils::errorS) {
-				QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
+				//QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
 				return ;
 			}
 			imagePath = "/tmp/openfde_screen.jpg";
