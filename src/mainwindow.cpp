@@ -387,8 +387,8 @@ void MainWindow::onSettingsButtonClicked()
 			msgBox->setIcon(QMessageBox::Warning);
 			msgBox->setText(tr("OpenFDE未安装"));
 			msgBox->setStandardButtons(QMessageBox::NoButton);
+			msgBox->setWindowTitle("OpenFDE");
 			msgBox->show();
-			QTimer::singleShot(1000, msgBox, &QMessageBox::close);
 			return;
 		}
 		QMessageBox::StandardButton reply = QMessageBox::question(this,
@@ -396,9 +396,11 @@ void MainWindow::onSettingsButtonClicked()
                        tr("确定要卸载OpenFDE吗？"),
                        QMessageBox::Yes | QMessageBox::No);
 		if (reply == QMessageBox::Yes) {
+
 			// Start loading animation
 			QMovie *loadingAnimation = new QMovie(":/images/loading.gif");
 			QLabel *loadingLabel = new QLabel(this);
+			loadingAnimation->setScaledSize(QSize(100, 100)); // 设置动画大小
 			loadingLabel->setMovie(loadingAnimation);
 			loadingLabel->setAlignment(Qt::AlignCenter);
 			loadingLabel->setGeometry(this->geometry().center().x() - 50, this->geometry().center().y() - 50, 100, 100);
@@ -417,6 +419,14 @@ void MainWindow::onSettingsButtonClicked()
 					QString homeDir = QDir::homePath();
 					dbus_utils::clear(homeDir);
 				}
+				QMetaObject::invokeMethod(this, [this]() {
+					QMessageBox* msgBox = new QMessageBox(this);
+					msgBox->setIcon(QMessageBox::Information);
+					msgBox->setText(tr("卸载成功"));
+					msgBox->setStandardButtons(QMessageBox::NoButton);
+					msgBox->show();
+					QTimer::singleShot(1000, msgBox, &QMessageBox::close);
+				}, Qt::QueuedConnection);
 			});
 
 			// Cancel the animation after the operation is complete
@@ -428,14 +438,6 @@ void MainWindow::onSettingsButtonClicked()
 				watcher->deleteLater();
 			});
 			watcher->setFuture(future);
-
-			
-			QMessageBox* msgBox = new QMessageBox(this);
-			msgBox->setIcon(QMessageBox::Information);
-			msgBox->setText(tr("卸载成功"));
-			msgBox->setStandardButtons(QMessageBox::NoButton);
-			msgBox->show();
-			QTimer::singleShot(1000, msgBox, &QMessageBox::close);
 		}
 	});
 

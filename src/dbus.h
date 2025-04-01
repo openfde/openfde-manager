@@ -53,6 +53,25 @@ public:
 		);
 
 	}
+	
+	static QString security(QString command ){
+		QDBusMessage message = connectDBus("Security");
+		QList<QVariant> args;
+		args << QVariant::fromValue(QString(command));
+		message.setArguments(args);
+
+		int timeout=4000;
+		QDBusConnection bus = QDBusConnection::systemBus();  
+		QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
+
+		if (reply.isValid()) {
+			Logger::log(Logger::INFO, QString("%1 call security successful, reply value is %2").arg(command).arg(reply.value()).toStdString());
+		} else {
+			Logger::log(Logger::ERROR, QString("%1 called security failed : %2").arg(command).arg(reply.error().message()).toStdString());
+			return errorS;
+		}
+		return reply.value();
+	}
 
 	static QString clear(QString homeDir ){
 		QDBusMessage message = connectDBus("Clear");
