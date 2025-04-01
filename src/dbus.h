@@ -125,6 +125,9 @@ public:
 		int timeout=420000; //7 min
 		QDBusConnection bus = QDBusConnection::systemBus();  
 		QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
+		if (command.contains("install", Qt::CaseInsensitive)) {
+			Logger::log(Logger::INFO, QString("Command contains 'install': %1").arg(command).toStdString());
+		}
 
 		if (reply.error().type() == QDBusError::Timeout) {
 			Logger::log(Logger::ERROR, QString("%1 called tools timeout").arg(command).toStdString());

@@ -23,6 +23,7 @@
 #include <QFuture>
 #include <QMovie>
 #include <QtConcurrent>
+#include "shellUtils.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -54,17 +55,20 @@ MainWindow::MainWindow(QWidget *parent)
     btn->move(100,50);
     btn->show();
 
-    QFile fdeUtils("/usr/bin/fde_utils");
-    if (fdeUtils.exists()){
-	QProcess *process = new QProcess();
-	process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
-	process->waitForFinished(-1);
-	//获取waitForFinished返回值
-	int exitCode = process->exitCode();
-	if (exitCode == 1) {
-		btn->toggleToStatus(button_start_status);
+    // QFile fdeUtils("/usr/bin/fde_utils");
+    // if (fdeUtils.exists()){
+	// QProcess *process = new QProcess();
+	// process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
+	// process->waitForFinished(-1);
+	// //获取waitForFinished返回值
+	// int exitCode = process->exitCode();
+	// 	if (exitCode == 1) {
+	// 		btn->toggleToStatus(button_start_status);
+	// 	}
+    // }
+	if ( shellUtils::is_openfde_closed() ){
+		 btn->toggleToStatus(button_start_status) 
 	}
-    }
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
     connect(btn, &ShapeButton::sendMessage, this, &MainWindow::onMessageReceived,Qt::QueuedConnection);
@@ -394,14 +398,18 @@ void MainWindow::onSettingsButtonClicked()
                        tr("确定要卸载OpenFDE吗？"),
                        QMessageBox::Yes | QMessageBox::No);
 		if (reply == QMessageBox::Yes) {
-
+			if ( shellUtils::is_openfde_closed() ){
+				QMessageBox::critical(this, tr("Error"), tr("请先关闭OpenFDE再卸载"), QMessageBox::Ok);
+				return;
+		   	}
+			
 			// Start loading animation
 			 QDialog *animationWidget = new QDialog(this);
 
-                       animationWidget->setFixedSize(100, 100);
+			animationWidget->setFixedSize(100, 100);
 
-                       animationWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-                       animationWidget->setWindowModality(Qt::ApplicationModal);
+			animationWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+			animationWidget->setWindowModality(Qt::ApplicationModal);
 
 			QMovie *loadingAnimation = new QMovie(":/images/loading.gif");
 			QLabel *loadingLabel = new QLabel(animationWidget);
