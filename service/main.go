@@ -61,7 +61,7 @@ func (s *OpenFDEService) Security(command string) (string, *dbus.Error) {
 		fmt.Println("disable security")
 		err := security.Disable()
 		if err != nil {
-			fmt.Println("disable security failed", nil, err)
+			fmt.Println("disable security failed", err)
 			return "failed", nil
 		}
 		return "complete", nil

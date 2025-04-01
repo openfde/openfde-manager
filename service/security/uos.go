@@ -9,7 +9,7 @@ type UosSecurity struct {
 }
 
 var uosCmdList = [][]string{
-	{"sed", "-i", "s/1/0/", "/usr/share/deepin-elf-veirfy/mode"},
+	{"sed", "-i", "s/1/0/", "/usr/share/deepin-elf-verify/mode"},
 	{"systemctl", "restart", "deepin-elf-verify"},
 }
 

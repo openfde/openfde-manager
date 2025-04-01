@@ -77,25 +77,21 @@ static const QString getOpenfdeUrl = "https://openfde.com/getopenfde/ex-install-
 void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 
 	Logger::log(Logger::INFO, QString("ReceiverClass: Received message: %1").arg(string).toStdString());
-	QFile getstatusFile("/usr/bin/getstatus");
-	if (getstatusFile.exists()) {
-		QProcess *process = new QProcess();
-		process->start("/usr/sbin/getstatus", QStringList());
-		process->waitForFinished(-1);
-		QString output(process->readAllStandardOutput());
-		QStringList lines = output.split('\n');
-		for (const QString& line : lines) {
-			if (line.contains("exec control")) {
-				Logger::log(Logger::DEBUG,line.toStdString());
-				QStringList parts = line.split(':');
-				if (parts.size() == 2 && parts[1].trimmed() != "off") {
-					QMessageBox::information(this,
-						tr("提示"),
-						tr("需要关闭应用执行控制才能继续"),
-						QMessageBox::Ok);
-					sendStatusUpdateMessage(button_stop_status);
-					return;
-				}
+	QString securityStatus = dbus_utils::security(dbus_utils::methodSecurityQuery);
+	if (securityStatus == dbus_utils::errorS) {
+	}
+	if (securityStatus == dbus_utils::statusSecurityEnable) {
+		QMessageBox::StandardButton reply = QMessageBox::question(this, 
+			tr("确认操作"), 
+			tr("需要关闭应用执行控制才能继续"),
+			QMessageBox::Yes | QMessageBox::No);
+
+		if (reply == QMessageBox::Yes) {
+			QString result = dbus_utils::security(dbus_utils::methodSecurityDisable);
+			if (result == dbus_utils::errorS) {
+				QMessageBox::critical(this, tr("Error"), tr("关闭系统安全设置失败"), QMessageBox::Ok);
+			} else {
+				QMessageBox::information(this, tr("成功"), tr("系统安全设置已关闭"), QMessageBox::Ok);
 			}
 		}
 	}

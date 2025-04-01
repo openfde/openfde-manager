@@ -12,6 +12,10 @@ const QString dbus_utils::methodVersionFDE ="version_fde";
 const QString dbus_utils::methodVersionCtrl= "version_ctrl";
 const QString dbus_utils::methodStop ="stop";
 const QString dbus_utils::methodUninstall = "uninstall";
+const QString dbus_utils::methodSecurityQuery = "query";
+const QString dbus_utils::methodSecurityDisable = "disable";
+
+const QString dbus_utils::statusSecurityEnable = "enable";
 
 const QString dbus_utils::ErrSystem = "1";
 const QString dbus_utils::ErrService = "-1";

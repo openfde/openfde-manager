@@ -22,6 +22,11 @@ public:
 	static const QString methodStop;
 	static const QString methodUninstall;
 	static const QString openfdeStatusInstalled;
+	static const QString methodSecurityQuery ;
+	static const QString methodSecurityDisable;
+
+	
+	static const QString statusSecurityEnable;
 
 	static const QString errorS; 
 	static const QString ErrService; 
@@ -53,7 +58,7 @@ public:
 		);
 
 	}
-	
+
 	static QString security(QString command ){
 		QDBusMessage message = connectDBus("Security");
 		QList<QVariant> args;
