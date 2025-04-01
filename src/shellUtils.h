@@ -48,11 +48,9 @@ public:
 			process->waitForFinished(-1);
 			//获取waitForFinished返回值
 			int exitCode = process->exitCode();
-			qDebug()<<exitCode <<"exit code";
 			if (exitCode == 1) {
 				return false;
 			}else {
-				qDebug()<<exitCode <<"return true";
 				return true;
 			}
 		}

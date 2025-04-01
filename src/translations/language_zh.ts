@@ -140,8 +140,8 @@
         <translation type="finished">安装完成</translation>
     </message>
     <message>
-        <source>需要关闭应用执行控制才能继续</source>
-        <translation type="finished">需要关闭应用执行控制才能继续</translation>
+        <source>确认是否关闭应用执行控制</source>
+        <translation type="finished">确认是否关闭应用执行控制</translation>
     </message>
     <message>
         <source>未安装</source>
@@ -154,6 +154,10 @@
     <message>
         <source>请先关闭OpenFDE再卸载</source>
         <translation type="finished">请先关闭OpenFDE再卸载</translation>
+    </message>
+    <message>
+        <source>关闭系统安全设置失败</source>
+        <translation type="finished">关闭系统安全设置失败</translation>
     </message>
 </context>
 

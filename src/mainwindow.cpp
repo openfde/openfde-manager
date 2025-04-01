@@ -74,16 +74,18 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 	if (securityStatus == dbus_utils::statusSecurityEnable) {
 		QMessageBox::StandardButton reply = QMessageBox::question(this, 
 			tr("确认操作"), 
-			tr("需要关闭应用执行控制才能继续"),
+			tr("确认是否关闭应用执行控制"),
 			QMessageBox::Yes | QMessageBox::No);
-
 		if (reply == QMessageBox::Yes) {
 			QString result = dbus_utils::security(dbus_utils::methodSecurityDisable);
 			if (result == dbus_utils::errorS) {
 				QMessageBox::critical(this, tr("Error"), tr("关闭系统安全设置失败"), QMessageBox::Ok);
-			} else {
-				QMessageBox::information(this, tr("成功"), tr("系统安全设置已关闭"), QMessageBox::Ok);
+				sendStatusUpdateMessage(button_stop_status);
+				return ;
 			}
+		}else{
+			sendStatusUpdateMessage(button_stop_status);
+			return ;
 		}
 	}
 	installWorker = new Worker();
@@ -399,7 +401,9 @@ void MainWindow::onSettingsButtonClicked()
 			QFuture<void> future = QtConcurrent::run([deleteDataCheckbox,this,animationWidget ]() {
 				QString output = dbus_utils::tools(dbus_utils::methodUninstall);
 				if (output.contains(dbus_utils::errorS)) {
-					QMessageBox::critical(this, tr("Error"), tr(dbus_utils::parseError(output)), QMessageBox::Ok);
+					QMetaObject::invokeMethod(this, [this,output]() {
+						QMessageBox::critical(this, tr("Error"), tr(dbus_utils::parseError(output)), QMessageBox::Ok);
+					}, Qt::QueuedConnection);
 					return;
 				}
 				bool deleteData = deleteDataCheckbox->isChecked();
@@ -407,7 +411,6 @@ void MainWindow::onSettingsButtonClicked()
 					QString homeDir = QDir::homePath();
 					dbus_utils::clear(homeDir);
 				}
-				animationWidget->close();
 				QMetaObject::invokeMethod(this, [this]() {
 					QMessageBox* msgBox = new QMessageBox(this);
 					msgBox->setIcon(QMessageBox::Information);
@@ -419,9 +422,11 @@ void MainWindow::onSettingsButtonClicked()
 
 			// Cancel the animation after the operation is complete
 			QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
-			connect(watcher, &QFutureWatcher<void>::finished, this, [loadingLabel, loadingAnimation, watcher]() {
+			connect(watcher, &QFutureWatcher<void>::finished, this, [animationWidget,loadingLabel, loadingAnimation, watcher]() {
 				loadingAnimation->stop();
 				loadingLabel->hide();
+				animationWidget->close();
+				animationWidget->deleteLater();
 				loadingLabel->deleteLater();
 				watcher->deleteLater();
 			});
