@@ -399,6 +399,7 @@ void MainWindow::onSettingsButtonClicked()
                        tr("确定要卸载OpenFDE吗？"),
                        QMessageBox::Yes | QMessageBox::No);
 		if (reply == QMessageBox::Yes) {
+
 			// Start loading animation
 			 QDialog *animationWidget = new QDialog(this);
 
