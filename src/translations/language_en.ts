@@ -150,6 +150,11 @@
     <message>
         <source>执行动作超时</source>
         <translation type="finished">Action timeout </translation>
+    </message>
+    <message>
+        <source>请先关闭OpenFDE再卸载</source>
+        <translation type="finished">Please stop OpenFDE first</translation>
+    </message>
 </context>
 
 <context>

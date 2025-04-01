@@ -19,6 +19,7 @@
 #include <QPixmap>
 #include <QDebug>
 #include <QPainter>
+#include "shellUtils.h"
 
 class MainWindow : public QMainWindow
 {
@@ -79,21 +80,8 @@ signals:
 protected:
 void mouseDoubleClickEvent(QMouseEvent *event) override {
     Logger::log(Logger::INFO,"double click mainwindow");
-    QFile fdeUtils("/usr/bin/fde_utils");
-    if (fdeUtils.exists()){
-	QProcess process ;
-	process.start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
-	process.waitForFinished(-1);
-	//获取waitForFinished返回值
-	int exitCode = process.exitCode();
-	if (exitCode == 1) {
-		QProcess gprocess;
-		gprocess.start("bash", QStringList() << "/usr/bin/fde_utils"<<"get_desktop");
-		gprocess.waitForFinished(3000);
-		QString output(gprocess.readAllStandardOutput());
-		Logger::log(Logger::DEBUG,"switch to desktop "+ output.toStdString());
-        	QProcess::startDetached("wmctrl", QStringList() << "-s" << output);
-	}
+    if ( !shellUtils::isOpenfdeClosed){
+	    shellUtils::switchToOpenfdeDesktop();
     }
 }
 private:

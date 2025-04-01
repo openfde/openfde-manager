@@ -16,7 +16,6 @@
 #include <QIcon>
 #include <QHBoxLayout>
 #include <QCoreApplication>
-#include <QProcess>
 #include <QFile>
 #include <QTextStream>
 #include <QFutureWatcher>
@@ -55,20 +54,9 @@ MainWindow::MainWindow(QWidget *parent)
     btn->move(100,50);
     btn->show();
 
-    // QFile fdeUtils("/usr/bin/fde_utils");
-    // if (fdeUtils.exists()){
-	// QProcess *process = new QProcess();
-	// process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
-	// process->waitForFinished(-1);
-	// //获取waitForFinished返回值
-	// int exitCode = process->exitCode();
-	// 	if (exitCode == 1) {
-	// 		btn->toggleToStatus(button_start_status);
-	// 	}
-    // }
-	if ( shellUtils::is_openfde_closed() ){
-		 btn->toggleToStatus(button_start_status) 
-	}
+    if ( ! shellUtils::isOpenfdeClosed() ){
+        btn->toggleToStatus(button_start_status) ;
+    }
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
     connect(btn, &ShapeButton::sendMessage, this, &MainWindow::onMessageReceived,Qt::QueuedConnection);
@@ -143,11 +131,7 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 		if ( withAction){
 			//执行脚本fde_utils stop 
 			Logger::log(Logger::INFO, " on mesage for button stop status fde_utils ");
-			QProcess *process = new QProcess();
-			process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"stop");
-			process->waitForFinished(-1);
-			QString output(process->readAllStandardOutput());
-			Logger::log(Logger::INFO, QString("fde_utils output: %1").arg(output).toStdString());
+			shellUtils::stopOpenfde();
 			this->showImage(true);
 		}
 	}
@@ -158,7 +142,6 @@ void MainWindow::onRunEnded(){
 }
 
 
-static const QString fdeUtilsPath = "/usr/bin/fde_utils";
 static const QString imagesPath = ":/images/openfde.png";
 void MainWindow::showImage(bool immediately) {
 	QMutex ImageMutex;
@@ -175,28 +158,19 @@ void MainWindow::showImage(bool immediately) {
 		Logger::log(Logger::DEBUG,"less than ten secs do not to update screenshot");
 		return;
 	}
-	QFile utilsFile(fdeUtilsPath);
 	QString imagePath = imagesPath;
-	if (utilsFile.exists()) {
-		//执行脚本fde_utils status
-		QProcess *process = new QProcess();
-		process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
-		process->waitForFinished(-1);
-		//获取waitForFinished返回值
-		int exitCode = process->exitCode();
-		if (exitCode == 1) {//0 means fde is stopped
-			// 加载图片
-			Logger::log(Logger::INFO," fde is stared for screenshoting");
-			QString retScreen = dbus_utils::utils("screenshot");
-			if (retScreen == dbus_utils::errorS) {
-				//QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
-				return ;
-			}
-			imagePath = "/tmp/openfde_screen.jpg";
-			QFile screenFile(imagePath);
-			if (! screenFile.exists()) {
-				imagePath = ":/images/openfde.png";
-			}
+	if (! shellUtils::isOpenfdeClosed()){
+		// 加载图片
+		Logger::log(Logger::INFO," fde is started for screenshoting");
+		QString retScreen = dbus_utils::utils("screenshot");
+		if (retScreen == dbus_utils::errorS) {
+			//QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
+			return ;
+		}
+		imagePath = "/tmp/openfde_screen.jpg";
+		QFile screenFile(imagePath);
+		if (! screenFile.exists()) {
+			imagePath = ":/images/openfde.png";
 		}
 	}
    
@@ -398,7 +372,7 @@ void MainWindow::onSettingsButtonClicked()
                        tr("确定要卸载OpenFDE吗？"),
                        QMessageBox::Yes | QMessageBox::No);
 		if (reply == QMessageBox::Yes) {
-			if ( shellUtils::is_openfde_closed() ){
+			if ( ! shellUtils::isOpenfdeClosed() ){
 				QMessageBox::critical(this, tr("Error"), tr("请先关闭OpenFDE再卸载"), QMessageBox::Ok);
 				return;
 		   	}

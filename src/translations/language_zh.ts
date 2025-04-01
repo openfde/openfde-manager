@@ -151,6 +151,10 @@
         <source>执行动作超时</source>
         <translation type="finished">执行动作超时</translation>
     </message>
+    <message>
+        <source>请先关闭OpenFDE再卸载</source>
+        <translation type="finished">请先关闭OpenFDE再卸载</translation>
+    </message>
 </context>
 
 <context>
