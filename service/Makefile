@@ -1,2 +1,2 @@
-install:
+install: main.go
 	go build
