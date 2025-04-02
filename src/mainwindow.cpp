@@ -1,4 +1,4 @@
-/ Copyright (C) 2025 OpenFDE.
+// Copyright (C) 2025 OpenFDE.
 // SPDX-License-Identifier: Apache-2.0
 
 #include "mainwindow.h"
@@ -16,9 +16,13 @@
 #include <QIcon>
 #include <QHBoxLayout>
 #include <QCoreApplication>
-#include <QProcess>
 #include <QFile>
 #include <QTextStream>
+#include <QFutureWatcher>
+#include <QFuture>
+#include <QMovie>
+#include <QtConcurrent>
+#include "shellUtils.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -50,16 +54,8 @@ MainWindow::MainWindow(QWidget *parent)
     btn->move(100,50);
     btn->show();
 
-    QFile fdeUtils("/usr/bin/fde_utils");
-    if (fdeUtils.exists()){
-	QProcess *process = new QProcess();
-	process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
-	process->waitForFinished(-1);
-	//获取waitForFinished返回值
-	int exitCode = process->exitCode();
-	if (exitCode == 1) {
-		btn->toggleToStatus(button_start_status);
-	}
+    if ( ! shellUtils::isOpenfdeClosed() ){
+        btn->toggleToStatus(button_start_status) ;
     }
     // 连接启动按钮点击事件
     connect(this, &MainWindow::imageSignal, this, &MainWindow::showImage);
@@ -73,26 +69,23 @@ static const QString getOpenfdeUrl = "https://openfde.com/getopenfde/ex-install-
 void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 
 	Logger::log(Logger::INFO, QString("ReceiverClass: Received message: %1").arg(string).toStdString());
-	QFile getstatusFile("/usr/bin/getstatus");
-	if (getstatusFile.exists()) {
-		QProcess *process = new QProcess();
-		process->start("/usr/sbin/getstatus", QStringList());
-		process->waitForFinished(-1);
-		QString output(process->readAllStandardOutput());
-		QStringList lines = output.split('\n');
-		for (const QString& line : lines) {
-			if (line.contains("exec control")) {
-				Logger::log(Logger::DEBUG,line.toStdString());
-				QStringList parts = line.split(':');
-				if (parts.size() == 2 && parts[1].trimmed() != "off") {
-					QMessageBox::information(this,
-						tr("提示"),
-						tr("需要关闭应用执行控制才能继续"),
-						QMessageBox::Ok);
-					sendStatusUpdateMessage(button_stop_status);
-					return;
-				}
+	QString securityStatus = dbus_utils::security(dbus_utils::methodSecurityQuery);
+	Logger::log(Logger::INFO, QString("query security status: %1").arg(securityStatus).toStdString());
+	if (securityStatus == dbus_utils::statusSecurityEnable) {
+		QMessageBox::StandardButton reply = QMessageBox::question(this, 
+			tr("确认操作"), 
+			tr("确认是否关闭应用执行控制"),
+			QMessageBox::Yes | QMessageBox::No);
+		if (reply == QMessageBox::Yes) {
+			QString result = dbus_utils::security(dbus_utils::methodSecurityDisable);
+			if (result == dbus_utils::errorS) {
+				QMessageBox::critical(this, tr("Error"), tr("关闭系统安全设置失败"), QMessageBox::Ok);
+				sendStatusUpdateMessage(button_stop_status);
+				return ;
 			}
+		}else{
+			sendStatusUpdateMessage(button_stop_status);
+			return ;
 		}
 	}
 	installWorker = new Worker();
@@ -140,11 +133,7 @@ void MainWindow::onMessageReceived( const QString & string , bool withAction) {
 		if ( withAction){
 			//执行脚本fde_utils stop 
 			Logger::log(Logger::INFO, " on mesage for button stop status fde_utils ");
-			QProcess *process = new QProcess();
-			process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"stop");
-			process->waitForFinished(-1);
-			QString output(process->readAllStandardOutput());
-			Logger::log(Logger::INFO, QString("fde_utils output: %1").arg(output).toStdString());
+			shellUtils::stopOpenfde();
 			this->showImage(true);
 		}
 	}
@@ -155,7 +144,6 @@ void MainWindow::onRunEnded(){
 }
 
 
-static const QString fdeUtilsPath = "/usr/bin/fde_utils";
 static const QString imagesPath = ":/images/openfde.png";
 void MainWindow::showImage(bool immediately) {
 	QMutex ImageMutex;
@@ -172,28 +160,19 @@ void MainWindow::showImage(bool immediately) {
 		Logger::log(Logger::DEBUG,"less than ten secs do not to update screenshot");
 		return;
 	}
-	QFile utilsFile(fdeUtilsPath);
 	QString imagePath = imagesPath;
-	if (utilsFile.exists()) {
-		//执行脚本fde_utils status
-		QProcess *process = new QProcess();
-		process->start("bash", QStringList() << "/usr/bin/fde_utils"<<"status");
-		process->waitForFinished(-1);
-		//获取waitForFinished返回值
-		int exitCode = process->exitCode();
-		if (exitCode == 1) {//0 means fde is stopped
-			// 加载图片
-			Logger::log(Logger::INFO," fde is stared for screenshoting");
-			QString retScreen = dbus_utils::utils("screenshot");
-			if (retScreen == dbus_utils::errorS) {
-				QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
-				return ;
-			}
-			imagePath = "/tmp/openfde_screen.jpg";
-			QFile screenFile(imagePath);
-			if (! screenFile.exists()) {
-				imagePath = ":/images/openfde.png";
-			}
+	if (! shellUtils::isOpenfdeClosed()){
+		// 加载图片
+		Logger::log(Logger::INFO," fde is started for screenshoting");
+		QString retScreen = dbus_utils::utils("screenshot");
+		if (retScreen == dbus_utils::errorS) {
+			//QMessageBox::critical(this,tr("Error"), tr("FDE Dbus服务未启动"),QMessageBox::Ok);
+			return ;
+		}
+		imagePath = "/tmp/openfde_screen.jpg";
+		QFile screenFile(imagePath);
+		if (! screenFile.exists()) {
+			imagePath = ":/images/openfde.png";
 		}
 	}
    
@@ -373,20 +352,21 @@ void MainWindow::onSettingsButtonClicked()
 
 	// Update button
 	QCheckBox *deleteDataCheckbox = new QCheckBox(tr("卸载时一起删除数据"), versionWidget);
-	QPushButton *updateBtn = new QPushButton(tr("卸载"), versionWidget);
+    	deleteDataCheckbox->setFocusPolicy(Qt::NoFocus);
+	QPushButton *uninstallBtn = new QPushButton(tr("卸载"), versionWidget);
+	uninstallBtn->setFocusPolicy(Qt::NoFocus);
 	QHBoxLayout *uninstallLayout = new QHBoxLayout();
 	uninstallLayout->addWidget(deleteDataCheckbox);
-	uninstallLayout->addWidget(updateBtn);
+	uninstallLayout->addWidget(uninstallBtn);
 
-	connect(updateBtn, &QPushButton::clicked, this,[this, deleteDataCheckbox]()  {
+	connect(uninstallBtn, &QPushButton::clicked, this,[this, deleteDataCheckbox]()  {
 		QString ret = dbus_utils::tools(dbus_utils::methodStatus);
 		if ( ret != dbus_utils::openfdeStatusInstalled ) {
 			QMessageBox* msgBox = new QMessageBox(this);
 			msgBox->setIcon(QMessageBox::Warning);
 			msgBox->setText(tr("OpenFDE未安装"));
-			msgBox->setStandardButtons(QMessageBox::NoButton);
+			msgBox->setWindowTitle(tr("OpenFDE未安装"));
 			msgBox->show();
-			QTimer::singleShot(1000, msgBox, &QMessageBox::close);
 			return;
 		}
 		QMessageBox::StandardButton reply = QMessageBox::question(this,
@@ -394,22 +374,63 @@ void MainWindow::onSettingsButtonClicked()
                        tr("确定要卸载OpenFDE吗？"),
                        QMessageBox::Yes | QMessageBox::No);
 		if (reply == QMessageBox::Yes) {
-			QString output = dbus_utils::tools(dbus_utils::methodUninstall);
-			if (output.contains(dbus_utils::errorS)) {
-				QMessageBox::critical(this, tr("Error"), tr(dbus_utils::parseError(output)), QMessageBox::Ok);
+			if ( ! shellUtils::isOpenfdeClosed() ){
+				QMessageBox::critical(this, tr("Error"), tr("请先关闭OpenFDE再卸载"), QMessageBox::Ok);
 				return;
-			}
-			bool deleteData = deleteDataCheckbox->isChecked();
-			if (deleteData) {
-				QString homeDir = QDir::homePath();
-				dbus_utils::clear(homeDir);
-			}
-			QMessageBox* msgBox = new QMessageBox(this);
-			msgBox->setIcon(QMessageBox::Information);
-			msgBox->setText(tr("卸载成功"));
-			msgBox->setStandardButtons(QMessageBox::NoButton);
-			msgBox->show();
-			QTimer::singleShot(1000, msgBox, &QMessageBox::close);
+		   	}
+			
+			// Start loading animation
+			 QDialog *animationWidget = new QDialog(this);
+
+			animationWidget->setFixedSize(100, 100);
+
+			animationWidget->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+			animationWidget->setWindowModality(Qt::ApplicationModal);
+
+			QMovie *loadingAnimation = new QMovie(":/images/loading.gif");
+			QLabel *loadingLabel = new QLabel(animationWidget);
+			loadingLabel->setMovie(loadingAnimation);
+			loadingAnimation->setScaledSize(QSize(50,50));
+			loadingLabel->setAlignment(Qt::AlignCenter);
+			loadingLabel->setGeometry(animationWidget->geometry().center().x() - 50, animationWidget->geometry().center().y() - 50, 100, 100);
+			animationWidget->show();
+			loadingLabel->show();
+			loadingAnimation->start();
+
+			// Perform the clear operation asynchronously
+			QFuture<void> future = QtConcurrent::run([deleteDataCheckbox,this,animationWidget ]() {
+				QString output = dbus_utils::tools(dbus_utils::methodUninstall);
+				if (output.contains(dbus_utils::errorS)) {
+					QMetaObject::invokeMethod(this, [this,output]() {
+						QMessageBox::critical(this, tr("Error"), tr(dbus_utils::parseError(output)), QMessageBox::Ok);
+					}, Qt::QueuedConnection);
+					return;
+				}
+				bool deleteData = deleteDataCheckbox->isChecked();
+				if (deleteData) {
+					QString homeDir = QDir::homePath();
+					dbus_utils::clear(homeDir);
+				}
+				QMetaObject::invokeMethod(this, [this]() {
+					QMessageBox* msgBox = new QMessageBox(this);
+					msgBox->setIcon(QMessageBox::Information);
+					msgBox->setText(tr("卸载成功"));
+					msgBox->setWindowTitle(tr("卸载成功"));
+					msgBox->show();
+				}, Qt::QueuedConnection);
+			});
+
+			// Cancel the animation after the operation is complete
+			QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
+			connect(watcher, &QFutureWatcher<void>::finished, this, [animationWidget,loadingLabel, loadingAnimation, watcher]() {
+				loadingAnimation->stop();
+				loadingLabel->hide();
+				animationWidget->close();
+				animationWidget->deleteLater();
+				loadingLabel->deleteLater();
+				watcher->deleteLater();
+			});
+			watcher->setFuture(future);
 		}
 	});
 

@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QProcess>
 #include "logger.h"
+#include "shellUtils.h"
 
 class StartWorker : public QObject {
 	Q_OBJECT
@@ -101,11 +102,11 @@ public slots:
 	void doStartWork() {
 		// 创建一个方法调用消息
 		chooseDesktop();
-		int exitCode = QProcess::execute("bash", QStringList() << "/usr/bin/fde_utils"<<"start");
+		int exitCode = shellUtils::startOpenfde();
 		if (exitCode == 0) {
-			Logger::log(Logger::DEBUG,  "fde_utils executed successfully");
+			Logger::log(Logger::DEBUG,  "start openfde executed successfully");
 		} else {
-			Logger::log(Logger::ERROR,  "fde_utils executed failed with exit code " + exitCode);
+			Logger::log(Logger::ERROR,  "start openfde executed failed with exit code " + exitCode);
 		}
 		emit startEnded(); // 发送任务完成信号
 	}

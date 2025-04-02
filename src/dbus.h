@@ -22,9 +22,15 @@ public:
 	static const QString methodStop;
 	static const QString methodUninstall;
 	static const QString openfdeStatusInstalled;
+	static const QString methodSecurityQuery ;
+	static const QString methodSecurityDisable;
+
+	
+	static const QString statusSecurityEnable;
 
 	static const QString errorS; 
 	static const QString ErrService; 
+	static const QString ErrTimeout;
 	static const QString ErrSystem;  
 
 	static const char* parseError(QString);
@@ -51,6 +57,25 @@ public:
 		methodName                 // 方法名
 		);
 
+	}
+
+	static QString security(QString command ){
+		QDBusMessage message = connectDBus("Security");
+		QList<QVariant> args;
+		args << QVariant::fromValue(QString(command));
+		message.setArguments(args);
+
+		int timeout=4000;
+		QDBusConnection bus = QDBusConnection::systemBus();  
+		QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
+
+		if (reply.isValid()) {
+			Logger::log(Logger::INFO, QString("%1 call security successful, reply value is %2").arg(command).arg(reply.value()).toStdString());
+		} else {
+			Logger::log(Logger::ERROR, QString("%1 called security failed : %2").arg(command).arg(reply.error().message()).toStdString());
+			return errorS;
+		}
+		return reply.value();
 	}
 
 	static QString clear(QString homeDir ){
@@ -97,9 +122,19 @@ public:
 		args << QVariant::fromValue(QString(command));
 		message.setArguments(args);
 
-		int timeout=360000;
+		int timeout=60000; //1 min
 		QDBusConnection bus = QDBusConnection::systemBus();  
+
+		if (command.contains("install") && !command.contains("uninstall") ) {
+			timeout=600000; //10 min
+			Logger::log(Logger::INFO, QString("tools command is %1").arg(command).toStdString());
+		}
+
 		QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
+		if (reply.error().type() == QDBusError::NoReply) {
+			Logger::log(Logger::ERROR, QString("%1 called tools no reply perhaps timeout").arg(command).toStdString());
+			return errorS + ErrTimeout;
+		}
 
 		if (reply.isValid()) {
 			Logger::log(Logger::INFO, QString("%1 call tools successful, reply value is %2").arg(command).arg(reply.value()).toStdString());

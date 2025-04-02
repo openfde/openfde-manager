@@ -1,4 +1,4 @@
-/ Copyright (C) 2025 OpenFDE.
+// Copyright (C) 2025 OpenFDE.
 // SPDX-License-Identifier: Apache-2.0
 
 #include "draggable_button.h"
@@ -12,7 +12,7 @@ DraggableButton::DraggableButton(ArrayDirection direction, const QString &iconPa
     button = new QPushButton("", this);
     button->setStyleSheet("QPushButton{border-radius: 15px; }");
     button->setIcon(QIcon(iconPath));
-    button->setIconSize(QSize(80, 80));
+    button->setIconSize(QSize(100, 100));
     button->setFixedSize(100, 100);
     reservedIconPath = iconPath;
     reservedRect = rect;
@@ -66,7 +66,7 @@ void DraggableButton::moveByHoverEntered() {
         button->setFixedSize(100,100);
         setFixedSize(100,100);
         button->setIcon(QIcon(reservedIconPath));
-        button->setIconSize(QSize(80,80));
+        button->setIconSize(QSize(100,100));
         button->setStyleSheet("QPushButton{border-radius: 15px; }");
     }
     if ((arrayDirection == RIGHT && movedRight) ){
@@ -80,13 +80,15 @@ void DraggableButton::moveByHoverLeaved() {
     if ( (arrayDirection == RIGHT && !movedRight) || (arrayDirection == LEFT) ) {
         button->setFixedSize(10,100);
         button->setIcon(QIcon(":/images/line.png"));
-        button->setStyleSheet("QPushButton{border-radius: 5px; }");
-        button->setIconSize(QSize(50,50));
+        //button->setStyleSheet("QPushButton{border-radius: 1px; }");
+        button->setStyleSheet("QPushButton { padding-right: 1px; }");
+        button->setIconSize(QSize(80,80));
         setFixedSize(10,100);
     }
     if ( arrayDirection == RIGHT && !movedRight) {
         move(reservedRect.width()-10, pos().y());
-        button->setStyleSheet("QPushButton { padding-right: 5px; }");
+        //button->setStyleSheet("QPushButton{border-radius: 1px; }");
+        button->setStyleSheet("QPushButton { padding-right: 1px; }");
         movedRight = true;
     }
 }

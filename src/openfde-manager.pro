@@ -5,7 +5,7 @@
 TEMPLATE = app
 TARGET = openfde-manager
 INCLUDEPATH += .
-QT += widgets network dbus
+QT += widgets network dbus concurrent
 
 # The following define makes your compiler warn you if you use any
 # feature of Qt which has been marked as deprecated (the exact warnings
@@ -19,6 +19,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += mainwindow.h shapeButton.h download.h start_worker.h install_worker.h draggable_button.h
+HEADERS += mainwindow.h shapeButton.h download.h start_worker.h install_worker.h draggable_button.h shellUtils.h
 SOURCES += main.cpp mainwindow.cpp shapeButton.cpp download.cpp  dbus.cpp draggable_button.cpp
 RESOURCES += openfde-manager.qrc

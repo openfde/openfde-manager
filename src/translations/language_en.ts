@@ -140,12 +140,24 @@
         <translation type="finished">Installed </translation>
     </message>
     <message>
-        <source>需要关闭应用执行控制才能继续</source>
-        <translation type="finished">Need turn off the application exec controling</translation>
+        <source>确认是否关闭应用执行控制</source>
+        <translation type="finished">Confirm to turn off security controlling</translation>
     </message>
     <message>
         <source>未安装</source>
         <translation type="finished">UnInstalled </translation>
+    </message>
+    <message>
+        <source>执行动作超时</source>
+        <translation type="finished">Action timeout, try again later </translation>
+    </message>
+    <message>
+        <source>请先关闭OpenFDE再卸载</source>
+        <translation type="finished">Please stop OpenFDE first</translation>
+    </message>
+    <message>
+        <source>关闭系统安全设置失败</source>
+        <translation type="finished">Turn off the security settings failed</translation>
     </message>
 </context>
 
