@@ -122,12 +122,17 @@ public:
 		args << QVariant::fromValue(QString(command));
 		message.setArguments(args);
 
-		int timeout=420000; //7 min
+		int timeout=60000; //1 min
 		QDBusConnection bus = QDBusConnection::systemBus();  
-		QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
 
-		if (reply.error().type() == QDBusError::Timeout) {
-			Logger::log(Logger::ERROR, QString("%1 called tools timeout").arg(command).toStdString());
+		if (command.contains("install") && !command.contains("uninstall") ) {
+			timeout=600000; //10 min
+			Logger::log(Logger::INFO, QString("tools command is %1").arg(command).toStdString());
+		}
+
+		QDBusReply<QString> reply = bus.call(message,QDBus::Block,timeout);
+		if (reply.error().type() == QDBusError::NoReply) {
+			Logger::log(Logger::ERROR, QString("%1 called tools no reply perhaps timeout").arg(command).toStdString());
 			return errorS + ErrTimeout;
 		}
 

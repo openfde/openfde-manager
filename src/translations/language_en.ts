@@ -149,7 +149,7 @@
     </message>
     <message>
         <source>执行动作超时</source>
-        <translation type="finished">Action timeout </translation>
+        <translation type="finished">Action timeout, try again later </translation>
     </message>
     <message>
         <source>请先关闭OpenFDE再卸载</source>

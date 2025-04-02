@@ -149,7 +149,7 @@
     </message>
     <message>
         <source>执行动作超时</source>
-        <translation type="finished">执行动作超时</translation>
+        <translation type="finished">执行动作超时,可稍后重试</translation>
     </message>
     <message>
         <source>请先关闭OpenFDE再卸载</source>
